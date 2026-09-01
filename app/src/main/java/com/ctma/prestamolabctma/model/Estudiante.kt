@@ -1,4 +1,4 @@
-package com.example.prestamolabctma.model
+package com.ctma.prestamolabctma.model
 
 data class Estudiante(
     val documento: String,
