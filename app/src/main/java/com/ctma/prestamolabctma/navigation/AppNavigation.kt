@@ -1,16 +1,23 @@
 package com.ctma.prestamolabctma.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ctma.prestamolabctma.ui.login.LoginScreen
-import com.ctma.prestamolabctma.ui.home.HomeScreen
-import com.ctma.prestamolabctma.viewmodel.LoginViewModel
+import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
+import com.ctma.prestamolabctma.ui.equipo.DetalleEquipoScreen
 import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
+import com.ctma.prestamolabctma.ui.home.HomeScreen
+import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
+import com.ctma.prestamolabctma.viewmodel.LoginViewModel
+
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel
@@ -18,12 +25,17 @@ fun AppNavigation(
 
     val navController = rememberNavController()
 
+    var equipoSeleccionado by remember {
+        mutableStateOf<Equipo?>(null)
+    }
+
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
 
         composable("login") {
+
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onLoginSuccess = {
@@ -37,6 +49,7 @@ fun AppNavigation(
         }
 
         composable("home") {
+
             HomeScreen(
                 onCatalogoClick = {
                     navController.navigate("catalogo")
@@ -52,8 +65,30 @@ fun AppNavigation(
                 }
             )
         }
+
         composable("catalogo") {
-            CatalogoScreen()
+
+            CatalogoScreen(
+                onEquipoClick = { equipo ->
+
+                    equipoSeleccionado = equipo
+
+                    navController.navigate("detalle_equipo")
+                }
+            )
+        }
+
+        composable("detalle_equipo") {
+
+            equipoSeleccionado?.let { equipo ->
+
+                DetalleEquipoScreen(
+                    equipo = equipo,
+                    onSolicitarClick = {
+                        navController.navigate("solicitudes")
+                    }
+                )
+            }
         }
 
         composable("equipos") {

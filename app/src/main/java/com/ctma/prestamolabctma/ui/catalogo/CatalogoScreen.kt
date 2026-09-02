@@ -1,5 +1,6 @@
 package com.ctma.prestamolabctma.ui.catalogo
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +16,9 @@ import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Equipo
 
 @Composable
-fun CatalogoScreen() {
+fun CatalogoScreen(
+    onEquipoClick: (Equipo) -> Unit
+) {
 
     val equipos = listOf(
         Equipo(1, "Portátil Lenovo", "Computador", true),
@@ -48,7 +51,11 @@ fun CatalogoScreen() {
             items(equipos) { equipo ->
 
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onEquipoClick(equipo)
+                        }
                 ) {
 
                     Column(
