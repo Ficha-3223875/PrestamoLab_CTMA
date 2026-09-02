@@ -1,5 +1,6 @@
 package com.ctma.prestamolabctma.ui.login
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,8 @@ fun LoginScreen(
     var password by remember {
         mutableStateOf("")
     }
+
+    val mensaje by loginViewModel.mensaje.collectAsState()
 
     Column(
         modifier = modifier
@@ -88,6 +91,15 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Iniciar sesión")
+        }
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        if (mensaje.isNotEmpty()) {
+            Text(
+                text = mensaje
+            )
         }
     }
 }
