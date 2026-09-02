@@ -23,6 +23,7 @@ import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
+    onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -87,6 +88,10 @@ fun LoginScreen(
                     correo = correo,
                     password = password
                 )
+
+                if (correo.isNotBlank() && password.isNotBlank()) {
+                    onLoginSuccess()
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
