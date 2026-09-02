@@ -7,7 +7,10 @@ import androidx.navigation.compose.rememberNavController
 import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.home.HomeScreen
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
-
+import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
+import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
+import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
+import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel
@@ -34,7 +37,35 @@ fun AppNavigation(
         }
 
         composable("home") {
-            HomeScreen()
+            HomeScreen(
+                onCatalogoClick = {
+                    navController.navigate("catalogo")
+                },
+                onEquiposClick = {
+                    navController.navigate("equipos")
+                },
+                onPrestamosClick = {
+                    navController.navigate("prestamos")
+                },
+                onSolicitudesClick = {
+                    navController.navigate("solicitudes")
+                }
+            )
+        }
+        composable("catalogo") {
+            CatalogoScreen()
+        }
+
+        composable("equipos") {
+            EquiposScreen()
+        }
+
+        composable("prestamos") {
+            MisPrestamosScreen()
+        }
+
+        composable("solicitudes") {
+            SolicitudesScreen()
         }
     }
 }
