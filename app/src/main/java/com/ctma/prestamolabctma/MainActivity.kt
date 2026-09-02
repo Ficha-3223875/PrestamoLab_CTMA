@@ -67,6 +67,8 @@ fun RegistroEstudiante(
     var programa by remember { mutableStateOf("") }
     var ficha by remember { mutableStateOf("") }
 
+    var mensajeError by remember { mutableStateOf("") }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -123,20 +125,58 @@ fun RegistroEstudiante(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (mensajeError.isNotEmpty()) {
+            Text(
+                text = mensajeError
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         Button(
             onClick = {
 
-                val estudiante = Estudiante(
-                    documento = documento,
-                    nombre = nombre,
-                    correoInstitucional = correo,
-                    programa = programa,
-                    ficha = ficha
-                )
+                when {
+                    documento.isBlank() -> {
+                        mensajeError = "El documento es obligatorio"
+                    }
 
-                viewModel.registrarEstudiante(estudiante)
+                    nombre.isBlank() -> {
+                        mensajeError = "El nombre es obligatorio"
+                    }
+
+                    correo.isBlank() -> {
+                        mensajeError = "El correo institucional es obligatorio"
+                    }
+
+                    !correo.contains("@") -> {
+                        mensajeError = "Ingresa un correo institucional válido"
+                    }
+
+                    programa.isBlank() -> {
+                        mensajeError = "El programa es obligatorio"
+                    }
+
+                    ficha.isBlank() -> {
+                        mensajeError = "La ficha es obligatoria"
+                    }
+
+                    else -> {
+                        mensajeError = ""
+
+                        val estudiante = Estudiante(
+                            documento = documento,
+                            nombre = nombre,
+                            correoInstitucional = correo,
+                            programa = programa,
+                            ficha = ficha
+                        )
+
+                        viewModel.registrarEstudiante(estudiante)
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
