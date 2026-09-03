@@ -2,7 +2,7 @@ package com.ctma.prestamolabctma.ui.solicitud
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,7 +35,7 @@ fun SolicitudesScreen(
         )
 
         Text(
-            text = "Solicitudes de préstamo",
+            text = "Gestiona las solicitudes de préstamo",
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 16.dp
@@ -52,25 +52,17 @@ fun SolicitudesScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(
+                    bottom = 16.dp
+                )
             ) {
 
                 items(solicitudes) { solicitud ->
 
                     SolicitudCard(
                         solicitud = solicitud,
-                        onAprobar = {
-                            onCambiarEstado(
-                                solicitud.id,
-                                "Aprobada"
-                            )
-                        },
-                        onRechazar = {
-                            onCambiarEstado(
-                                solicitud.id,
-                                "Rechazada"
-                            )
-                        }
+                        onCambiarEstado = onCambiarEstado
                     )
                 }
             }
@@ -81,8 +73,7 @@ fun SolicitudesScreen(
 @Composable
 fun SolicitudCard(
     solicitud: Solicitud,
-    onAprobar: () -> Unit,
-    onRechazar: () -> Unit
+    onCambiarEstado: (Int, String) -> Unit
 ) {
 
     Card(
@@ -119,26 +110,41 @@ fun SolicitudCard(
                 text = "Estado: ${solicitud.estado}"
             )
 
-            if (solicitud.estado.equals("Pendiente", ignoreCase = true)) {
+            if (
+                solicitud.estado.equals(
+                    "Pendiente",
+                    ignoreCase = true
+                )
+            ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Button(
+                    onClick = {
+                        onCambiarEstado(
+                            solicitud.id,
+                            "Aprobada"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
 
-                    Button(
-                        onClick = onAprobar,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Aprobar")
-                    }
+                    Text(
+                        text = "Aprobar solicitud"
+                    )
+                }
 
-                    Button(
-                        onClick = onRechazar,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Rechazar")
-                    }
+                Button(
+                    onClick = {
+                        onCambiarEstado(
+                            solicitud.id,
+                            "Rechazada"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    Text(
+                        text = "Rechazar solicitud"
+                    )
                 }
             }
         }

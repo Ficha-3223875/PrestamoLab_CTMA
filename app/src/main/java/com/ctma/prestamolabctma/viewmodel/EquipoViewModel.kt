@@ -17,7 +17,7 @@ class EquipoViewModel : ViewModel() {
             ),
             Equipo(
                 id = 2,
-                nombre = "Video Beam",
+                nombre = "Proyector Epson",
                 tipo = "Proyector",
                 disponible = true
             ),
@@ -25,12 +25,12 @@ class EquipoViewModel : ViewModel() {
                 id = 3,
                 nombre = "Cámara Canon",
                 tipo = "Cámara",
-                disponible = true
+                disponible = false
             ),
             Equipo(
                 id = 4,
-                nombre = "Micrófono",
-                tipo = "Audio",
+                nombre = "Tablet Samsung",
+                tipo = "Tablet",
                 disponible = true
             )
         )
@@ -42,17 +42,13 @@ class EquipoViewModel : ViewModel() {
         idEquipo: Int,
         disponible: Boolean
     ) {
-
         _equipos.value = _equipos.value.map { equipo ->
 
             if (equipo.id == idEquipo) {
-
                 equipo.copy(
                     disponible = disponible
                 )
-
             } else {
-
                 equipo
             }
         }
