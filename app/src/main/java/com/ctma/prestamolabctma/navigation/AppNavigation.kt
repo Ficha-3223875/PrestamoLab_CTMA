@@ -18,6 +18,7 @@ import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
+import com.ctma.prestamolabctma.model.Solicitud
 
 @Composable
 fun AppNavigation(
@@ -28,6 +29,9 @@ fun AppNavigation(
 
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
+    }
+    var solicitudes by remember {
+        mutableStateOf<List<Solicitud>>(emptyList())
     }
 
     NavHost(
@@ -105,10 +109,11 @@ fun AppNavigation(
 
                 SolicitudScreen(
                     equipo = equipo,
-                    onSolicitudEnviada = {
+                    onSolicitudEnviada = { solicitud ->
+
+                        solicitudes = solicitudes + solicitud
 
                         navController.navigate("solicitudes") {
-
                             popUpTo("nueva_solicitud") {
                                 inclusive = true
                             }
@@ -132,8 +137,9 @@ fun AppNavigation(
 
         // SOLICITUDES
         composable("solicitudes") {
-
-            SolicitudesScreen()
+            SolicitudesScreen(
+                solicitudes = solicitudes
+            )
         }
     }
 }
