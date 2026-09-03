@@ -186,7 +186,14 @@ fun AppNavigation(
         composable("prestamos") {
 
             MisPrestamosScreen(
-                solicitudes = solicitudes
+                solicitudes = solicitudes,
+
+                onDevolverClick = { solicitud ->
+
+                    solicitudViewModel.devolverPrestamo(
+                        solicitud.id
+                    )
+                }
             )
         }
 

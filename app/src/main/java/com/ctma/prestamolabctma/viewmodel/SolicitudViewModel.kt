@@ -39,4 +39,12 @@ class SolicitudViewModel : ViewModel() {
                 }
             }
     }
+
+    fun devolverPrestamo(idSolicitud: Int) {
+
+        actualizarEstado(
+            idSolicitud = idSolicitud,
+            nuevoEstado = "Devuelto"
+        )
+    }
 }

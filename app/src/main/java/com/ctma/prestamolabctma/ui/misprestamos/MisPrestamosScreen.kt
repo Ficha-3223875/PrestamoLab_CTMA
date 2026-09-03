@@ -6,19 +6,21 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import com.ctma.prestamolabctma.model.Solicitud
 
 @Composable
 fun MisPrestamosScreen(
-    solicitudes: List<Solicitud>
+    solicitudes: List<Solicitud>,
+    onDevolverClick: (Solicitud) -> Unit
 ) {
 
     val prestamosAprobados = solicitudes.filter {
@@ -61,7 +63,10 @@ fun MisPrestamosScreen(
                 items(prestamosAprobados) { solicitud ->
 
                     PrestamoCard(
-                        solicitud = solicitud
+                        solicitud = solicitud,
+                        onDevolverClick = {
+                            onDevolverClick(solicitud)
+                        }
                     )
                 }
             }
@@ -71,7 +76,8 @@ fun MisPrestamosScreen(
 
 @Composable
 fun PrestamoCard(
-    solicitud: Solicitud
+    solicitud: Solicitud,
+    onDevolverClick: () -> Unit
 ) {
 
     Card(
@@ -107,6 +113,13 @@ fun PrestamoCard(
             Text(
                 text = "Estado: ${solicitud.estado}"
             )
+
+            Button(
+                onClick = onDevolverClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Devolver equipo")
+            }
         }
     }
 }
