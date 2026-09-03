@@ -20,6 +20,7 @@ import com.ctma.prestamolabctma.model.Solicitud
 @Composable
 fun SolicitudesScreen(
     solicitudes: List<Solicitud>,
+    onVolverClick: () -> Unit,
     onCambiarEstado: (Int, String) -> Unit
 ) {
 
@@ -42,17 +43,31 @@ fun SolicitudesScreen(
             )
         )
 
+        Button(
+            onClick = onVolverClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Volver al inicio"
+            )
+        }
+
         if (solicitudes.isEmpty()) {
 
             Text(
-                text = "No hay solicitudes registradas."
+                text = "No hay solicitudes registradas.",
+                modifier = Modifier.padding(top = 16.dp)
             )
 
         } else {
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp),
+
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+
                 contentPadding = PaddingValues(
                     bottom = 16.dp
                 )
@@ -126,7 +141,6 @@ fun SolicitudCard(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Text(
                         text = "Aprobar solicitud"
                     )
@@ -141,7 +155,6 @@ fun SolicitudCard(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Text(
                         text = "Rechazar solicitud"
                     )

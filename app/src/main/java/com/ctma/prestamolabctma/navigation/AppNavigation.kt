@@ -223,6 +223,10 @@ fun AppNavigation(
             SolicitudesScreen(
                 solicitudes = solicitudes,
 
+                onVolverClick = {
+                    navController.popBackStack()
+                },
+
                 onCambiarEstado = { solicitudId, nuevoEstado ->
 
                     solicitudViewModel.cambiarEstado(
@@ -230,8 +234,6 @@ fun AppNavigation(
                         nuevoEstado = nuevoEstado
                     )
 
-                    // Si la solicitud fue aprobada,
-                    // el equipo pasa a estar no disponible.
                     if (nuevoEstado.equals("Aprobada", ignoreCase = true)) {
 
                         val solicitud = solicitudes.find {
