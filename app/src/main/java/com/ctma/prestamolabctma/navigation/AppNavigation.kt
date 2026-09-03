@@ -226,6 +226,23 @@ fun AppNavigation(
                         solicitudId = solicitudId,
                         nuevoEstado = nuevoEstado
                     )
+
+                    // Si la solicitud fue aprobada,
+                    // el equipo pasa a estar no disponible.
+                    if (nuevoEstado.equals("Aprobada", ignoreCase = true)) {
+
+                        val solicitud = solicitudes.find {
+                            it.id == solicitudId
+                        }
+
+                        solicitud?.let {
+
+                            equipoViewModel.actualizarDisponibilidad(
+                                idEquipo = it.equipo.id,
+                                disponible = false
+                            )
+                        }
+                    }
                 }
             )
         }
