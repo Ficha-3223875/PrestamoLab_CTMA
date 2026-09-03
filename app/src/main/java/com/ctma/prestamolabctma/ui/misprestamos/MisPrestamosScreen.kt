@@ -21,6 +21,10 @@ fun MisPrestamosScreen(
     solicitudes: List<Solicitud>
 ) {
 
+    val prestamosAprobados = solicitudes.filter {
+        it.estado.equals("Aprobada", ignoreCase = true)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,17 +37,17 @@ fun MisPrestamosScreen(
         )
 
         Text(
-            text = "Préstamos solicitados",
+            text = "Préstamos aprobados",
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 16.dp
             )
         )
 
-        if (solicitudes.isEmpty()) {
+        if (prestamosAprobados.isEmpty()) {
 
             Text(
-                text = "No tienes préstamos registrados."
+                text = "No tienes préstamos aprobados."
             )
 
         } else {
@@ -54,7 +58,7 @@ fun MisPrestamosScreen(
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
 
-                items(solicitudes) { solicitud ->
+                items(prestamosAprobados) { solicitud ->
 
                     PrestamoCard(
                         solicitud = solicitud
@@ -75,7 +79,8 @@ fun PrestamoCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             Text(
@@ -84,28 +89,23 @@ fun PrestamoCard(
             )
 
             Text(
-                text = "Tipo: ${solicitud.equipo.tipo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Tipo: ${solicitud.equipo.tipo}"
             )
 
             Text(
-                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}"
             )
 
             Text(
-                text = "Fecha de devolución: ${solicitud.fechaDevolucion}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Fecha de devolución: ${solicitud.fechaDevolucion}"
             )
 
             Text(
-                text = "Motivo: ${solicitud.motivo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Motivo: ${solicitud.motivo}"
             )
 
             Text(
-                text = "Estado: ${solicitud.estado}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Estado: ${solicitud.estado}"
             )
         }
     }
