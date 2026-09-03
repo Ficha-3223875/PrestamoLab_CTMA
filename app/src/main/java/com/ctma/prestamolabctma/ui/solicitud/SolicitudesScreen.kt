@@ -2,12 +2,14 @@ package com.ctma.prestamolabctma.ui.solicitud
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,58 +28,85 @@ fun SolicitudesScreen(
     ) {
 
         Text(
-            text = "Mis solicitudes"
+            text = "Solicitudes",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Text(
+            text = "Solicitudes de préstamo",
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 16.dp
+            )
         )
 
         if (solicitudes.isEmpty()) {
 
             Text(
-                text = "No tienes solicitudes registradas.",
-                modifier = Modifier.padding(top = 16.dp)
+                text = "No tienes solicitudes registradas."
             )
 
         } else {
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
 
                 items(solicitudes) { solicitud ->
 
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-
-                            Text(
-                                text = "Equipo: ${solicitud.equipo.nombre}"
-                            )
-
-                            Text(
-                                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}"
-                            )
-
-                            Text(
-                                text = "Fecha de devolución: ${solicitud.fechaDevolucion}"
-                            )
-
-                            Text(
-                                text = "Motivo: ${solicitud.motivo}"
-                            )
-
-                            Text(
-                                text = "Estado: ${solicitud.estado}"
-                            )
-                        }
-                    }
+                    SolicitudCard(
+                        solicitud = solicitud
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SolicitudCard(
+    solicitud: Solicitud
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            Text(
+                text = solicitud.equipo.nombre,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = "Tipo: ${solicitud.equipo.tipo}",
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            Text(
+                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}",
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            Text(
+                text = "Fecha de devolución: ${solicitud.fechaDevolucion}",
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            Text(
+                text = "Motivo: ${solicitud.motivo}",
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            Text(
+                text = "Estado: ${solicitud.estado}",
+                modifier = Modifier.padding(top = 6.dp)
+            )
         }
     }
 }
