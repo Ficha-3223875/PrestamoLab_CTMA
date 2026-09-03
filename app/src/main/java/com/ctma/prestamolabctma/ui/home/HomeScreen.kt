@@ -2,10 +2,8 @@ package com.ctma.prestamolabctma.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -26,70 +24,45 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         Text(
-            text = "PrestamoLab CTMA",
-            style = MaterialTheme.typography.headlineLarge
+            text = "PréstamoLab CTMA",
+            style = MaterialTheme.typography.headlineMedium
         )
 
         Text(
             text = "Sistema de préstamo de equipos",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(32.dp)
+            style = MaterialTheme.typography.bodyLarge
         )
 
         Button(
             onClick = onCatalogoClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Catálogo"
-            )
+            Text("Catálogo de equipos")
         }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
 
         Button(
             onClick = onEquiposClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Equipos"
-            )
+            Text("Equipos")
         }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
 
         Button(
             onClick = onSolicitudesClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Solicitudes"
-            )
+            Text("Solicitudes")
         }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
 
         Button(
             onClick = onPrestamosClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Mis préstamos"
-            )
+            Text("Mis préstamos")
         }
     }
 }
