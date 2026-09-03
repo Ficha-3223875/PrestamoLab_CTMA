@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,10 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Equipo
 
-
 @Composable
 fun EquiposScreen(
-    equipos: List<Equipo>
+    equipos: List<Equipo>,
+    onVolverClick: () -> Unit
 ) {
 
     Column(
@@ -41,17 +42,31 @@ fun EquiposScreen(
             )
         )
 
+        Button(
+            onClick = onVolverClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Volver al inicio"
+            )
+        }
+
         if (equipos.isEmpty()) {
 
             Text(
-                text = "No hay equipos registrados."
+                text = "No hay equipos registrados.",
+                modifier = Modifier.padding(top = 16.dp)
             )
 
         } else {
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp),
+
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+
                 contentPadding = PaddingValues(
                     bottom = 16.dp
                 )
@@ -67,7 +82,6 @@ fun EquiposScreen(
         }
     }
 }
-
 
 @Composable
 fun EquipoCard(
