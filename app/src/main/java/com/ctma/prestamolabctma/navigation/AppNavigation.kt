@@ -15,6 +15,7 @@ import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
 import com.ctma.prestamolabctma.ui.home.HomeScreen
 import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
+import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 
@@ -34,6 +35,7 @@ fun AppNavigation(
         startDestination = "login"
     ) {
 
+        // LOGIN
         composable("login") {
 
             LoginScreen(
@@ -48,6 +50,7 @@ fun AppNavigation(
             )
         }
 
+        // HOME
         composable("home") {
 
             HomeScreen(
@@ -66,6 +69,7 @@ fun AppNavigation(
             )
         }
 
+        // CATÁLOGO
         composable("catalogo") {
 
             CatalogoScreen(
@@ -78,6 +82,7 @@ fun AppNavigation(
             )
         }
 
+        // DETALLE DEL EQUIPO
         composable("detalle_equipo") {
 
             equipoSeleccionado?.let { equipo ->
@@ -85,20 +90,38 @@ fun AppNavigation(
                 DetalleEquipoScreen(
                     equipo = equipo,
                     onSolicitarClick = {
-                        navController.navigate("solicitudes")
+                        navController.navigate("nueva_solicitud")
                     }
                 )
             }
         }
 
+        // NUEVA SOLICITUD
+        composable("nueva_solicitud") {
+
+            SolicitudScreen(
+                onSolicitudEnviada = {
+
+                    navController.navigate("solicitudes") {
+                        popUpTo("nueva_solicitud") {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // EQUIPOS
         composable("equipos") {
             EquiposScreen()
         }
 
+        // MIS PRÉSTAMOS
         composable("prestamos") {
             MisPrestamosScreen()
         }
 
+        // SOLICITUDES
         composable("solicitudes") {
             SolicitudesScreen()
         }
