@@ -182,10 +182,7 @@ fun AppNavigation(
         composable("equipos") {
 
             EquiposScreen(
-                equipos = equipos,
-                onVolverClick = {
-                    navController.popBackStack()
-                }
+                equipos = equipos
             )
         }
 

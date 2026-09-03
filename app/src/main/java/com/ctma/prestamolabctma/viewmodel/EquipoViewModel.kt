@@ -11,7 +11,7 @@ class EquipoViewModel : ViewModel() {
         listOf(
             Equipo(
                 id = 1,
-                nombre = "Portátil Lenovo",
+                nombre = "Laptop Lenovo",
                 tipo = "Computador",
                 disponible = true
             ),
@@ -23,9 +23,9 @@ class EquipoViewModel : ViewModel() {
             ),
             Equipo(
                 id = 3,
-                nombre = "Cámara Canon",
+                nombre = "Cámara Sony",
                 tipo = "Cámara",
-                disponible = false
+                disponible = true
             ),
             Equipo(
                 id = 4,
