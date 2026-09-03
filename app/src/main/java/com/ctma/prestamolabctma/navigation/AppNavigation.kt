@@ -20,41 +20,39 @@ import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
+import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
-
 
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel
 ) {
 
-    // Controlador de navegación
     val navController = rememberNavController()
 
-    // ViewModel de solicitudes
     val solicitudViewModel: SolicitudViewModel = viewModel()
 
-    // Lista de solicitudes
-    val solicitudes by solicitudViewModel.solicitudes
+    val equipoViewModel: EquipoViewModel = viewModel()
+
+    val solicitudes by solicitudViewModel
+        .solicitudes
         .collectAsStateWithLifecycle()
 
-    // Equipo seleccionado en el catálogo
+    val equipos by equipoViewModel
+        .equipos
+        .collectAsStateWithLifecycle()
+
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
     }
-
 
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
 
-
-        // =====================================================
         // LOGIN
-        // =====================================================
-
         composable("login") {
 
             LoginScreen(
@@ -72,11 +70,7 @@ fun AppNavigation(
             )
         }
 
-
-        // =====================================================
         // HOME
-        // =====================================================
-
         composable("home") {
 
             HomeScreen(
@@ -99,67 +93,50 @@ fun AppNavigation(
             )
         }
 
-
-        // =====================================================
         // CATÁLOGO
-        // =====================================================
-
+// CATÁLOGO
         composable("catalogo") {
 
             CatalogoScreen(
-
                 onEquipoClick = { equipo ->
 
-                    // Guardamos el equipo seleccionado
                     equipoSeleccionado = equipo
 
-                    // Vamos al detalle
                     navController.navigate("detalle_equipo")
                 }
             )
         }
 
-
-        // =====================================================
         // DETALLE DEL EQUIPO
-        // =====================================================
-
         composable("detalle_equipo") {
 
             equipoSeleccionado?.let { equipo ->
 
                 DetalleEquipoScreen(
-
                     equipo = equipo,
 
                     onSolicitarClick = {
 
-                        // Ir al formulario de solicitud
                         navController.navigate("nueva_solicitud")
                     }
                 )
             }
         }
 
-
-        // =====================================================
         // NUEVA SOLICITUD
-        // =====================================================
-
         composable("nueva_solicitud") {
 
             equipoSeleccionado?.let { equipo ->
 
                 SolicitudScreen(
-
                     equipo = equipo,
 
                     onSolicitudEnviada = { solicitud ->
 
-                        // Guardamos la solicitud en el ViewModel
-                        solicitudViewModel.agregarSolicitud(solicitud)
+                        solicitudViewModel.agregarSolicitud(
+                            solicitud
+                        )
 
-                        // Regresamos a la pantalla de solicitudes
                         navController.navigate("solicitudes") {
 
                             popUpTo("nueva_solicitud") {
@@ -170,19 +147,13 @@ fun AppNavigation(
                 )
             }
         }
-
-
-        // =====================================================
-        // EQUIPOS
-        // =====================================================
-
+// EQUIPOS
         composable("equipos") {
 
             EquiposScreen()
         }
 
-
-// MIS PRÉSTAMOS
+        // MIS PRÉSTAMOS
         composable("prestamos") {
 
             MisPrestamosScreen(
@@ -193,13 +164,16 @@ fun AppNavigation(
                     solicitudViewModel.devolverPrestamo(
                         solicitud.id
                     )
+
+                    equipoViewModel.actualizarDisponibilidad(
+                        idEquipo = solicitud.equipo.id,
+                        disponible = true
+                    )
                 }
             )
         }
 
-        // =====================================================
         // SOLICITUDES
-        // =====================================================
         composable("solicitudes") {
 
             SolicitudesScreen(
@@ -210,6 +184,11 @@ fun AppNavigation(
                     solicitudViewModel.actualizarEstado(
                         idSolicitud = solicitud.id,
                         nuevoEstado = "Aprobada"
+                    )
+
+                    equipoViewModel.actualizarDisponibilidad(
+                        idEquipo = solicitud.equipo.id,
+                        disponible = false
                     )
                 },
 
