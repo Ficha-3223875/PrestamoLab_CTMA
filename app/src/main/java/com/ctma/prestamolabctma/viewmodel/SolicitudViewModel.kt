@@ -13,9 +13,7 @@ class SolicitudViewModel : ViewModel() {
     val solicitudes: StateFlow<List<Solicitud>> =
         _solicitudes
 
-    fun agregarSolicitud(
-        solicitud: Solicitud
-    ) {
+    fun agregarSolicitud(solicitud: Solicitud) {
 
         _solicitudes.value =
             _solicitudes.value + solicitud
