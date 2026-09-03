@@ -7,11 +7,36 @@ import kotlinx.coroutines.flow.StateFlow
 
 class SolicitudViewModel : ViewModel() {
 
-    private val _solicitudes = MutableStateFlow<List<Solicitud>>(emptyList())
+    private val _solicitudes =
+        MutableStateFlow<List<Solicitud>>(emptyList())
 
-    val solicitudes: StateFlow<List<Solicitud>> = _solicitudes
+    val solicitudes: StateFlow<List<Solicitud>> =
+        _solicitudes
 
     fun agregarSolicitud(solicitud: Solicitud) {
-        _solicitudes.value = _solicitudes.value + solicitud
+
+        _solicitudes.value =
+            _solicitudes.value + solicitud
+    }
+
+    fun actualizarEstado(
+        idSolicitud: Int,
+        nuevoEstado: String
+    ) {
+
+        _solicitudes.value =
+            _solicitudes.value.map { solicitud ->
+
+                if (solicitud.id == idSolicitud) {
+
+                    solicitud.copy(
+                        estado = nuevoEstado
+                    )
+
+                } else {
+
+                    solicitud
+                }
+            }
     }
 }
