@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -13,18 +15,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import com.ctma.prestamolabctma.model.Solicitud
 
 @Composable
 fun MisPrestamosScreen(
     solicitudes: List<Solicitud>,
+    onVolverClick: () -> Unit,
     onDevolverClick: (Solicitud) -> Unit
 ) {
 
     val prestamosAprobados = solicitudes.filter {
-        it.estado.equals("Aprobada", ignoreCase = true)
+        it.estado.equals(
+            "Aprobada",
+            ignoreCase = true
+        )
     }
 
     Column(
@@ -46,27 +50,41 @@ fun MisPrestamosScreen(
             )
         )
 
+        Button(
+            onClick = onVolverClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Volver al inicio"
+            )
+        }
+
         if (prestamosAprobados.isEmpty()) {
 
             Text(
-                text = "No tienes préstamos aprobados."
+                text = "No tienes préstamos aprobados.",
+                modifier = Modifier.padding(top = 16.dp)
             )
 
         } else {
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp),
+
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
+
+                contentPadding = PaddingValues(
+                    bottom = 16.dp
+                )
             ) {
 
                 items(prestamosAprobados) { solicitud ->
 
                     PrestamoCard(
                         solicitud = solicitud,
-                        onDevolverClick = {
-                            onDevolverClick(solicitud)
-                        }
+                        onDevolverClick = onDevolverClick
                     )
                 }
             }
@@ -77,7 +95,7 @@ fun MisPrestamosScreen(
 @Composable
 fun PrestamoCard(
     solicitud: Solicitud,
-    onDevolverClick: () -> Unit
+    onDevolverClick: (Solicitud) -> Unit
 ) {
 
     Card(
@@ -115,10 +133,14 @@ fun PrestamoCard(
             )
 
             Button(
-                onClick = onDevolverClick,
+                onClick = {
+                    onDevolverClick(solicitud)
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Devolver equipo")
+                Text(
+                    text = "Devolver préstamo"
+                )
             }
         }
     }

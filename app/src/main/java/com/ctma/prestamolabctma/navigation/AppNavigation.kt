@@ -199,6 +199,10 @@ fun AppNavigation(
             MisPrestamosScreen(
                 solicitudes = solicitudes,
 
+                onVolverClick = {
+                    navController.popBackStack()
+                },
+
                 onDevolverClick = { solicitud ->
 
                     solicitudViewModel.devolverPrestamo(
