@@ -41,6 +41,7 @@ fun AppNavigation(
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onLoginSuccess = {
+
                     navController.navigate("home") {
                         popUpTo("login") {
                             inclusive = true
@@ -90,6 +91,7 @@ fun AppNavigation(
                 DetalleEquipoScreen(
                     equipo = equipo,
                     onSolicitarClick = {
+
                         navController.navigate("nueva_solicitud")
                     }
                 )
@@ -99,30 +101,38 @@ fun AppNavigation(
         // NUEVA SOLICITUD
         composable("nueva_solicitud") {
 
-            SolicitudScreen(
-                onSolicitudEnviada = {
+            equipoSeleccionado?.let { equipo ->
 
-                    navController.navigate("solicitudes") {
-                        popUpTo("nueva_solicitud") {
-                            inclusive = true
+                SolicitudScreen(
+                    equipo = equipo,
+                    onSolicitudEnviada = {
+
+                        navController.navigate("solicitudes") {
+
+                            popUpTo("nueva_solicitud") {
+                                inclusive = true
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
 
         // EQUIPOS
         composable("equipos") {
+
             EquiposScreen()
         }
 
         // MIS PRÉSTAMOS
         composable("prestamos") {
+
             MisPrestamosScreen()
         }
 
         // SOLICITUDES
         composable("solicitudes") {
+
             SolicitudesScreen()
         }
     }
