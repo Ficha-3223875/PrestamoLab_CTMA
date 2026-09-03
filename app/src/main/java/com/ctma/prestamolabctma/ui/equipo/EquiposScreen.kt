@@ -11,9 +11,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
 import com.ctma.prestamolabctma.model.Equipo
 
 @Composable
@@ -51,9 +51,7 @@ fun EquiposScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(
-                    bottom = 16.dp
-                )
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
 
                 items(equipos) { equipo ->
@@ -95,8 +93,7 @@ fun EquipoCard(
                     "Estado: Disponible"
                 } else {
                     "Estado: No disponible"
-                },
-                style = MaterialTheme.typography.bodyMedium
+                }
             )
         }
     }
