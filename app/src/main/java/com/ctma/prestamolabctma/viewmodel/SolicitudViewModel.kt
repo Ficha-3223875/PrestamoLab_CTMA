@@ -10,24 +10,25 @@ class SolicitudViewModel : ViewModel() {
     private val _solicitudes =
         MutableStateFlow<List<Solicitud>>(emptyList())
 
-    val solicitudes: StateFlow<List<Solicitud>> =
-        _solicitudes
+    val solicitudes: StateFlow<List<Solicitud>> = _solicitudes
 
+    // Agregar una nueva solicitud
     fun agregarSolicitud(solicitud: Solicitud) {
 
         _solicitudes.value =
             _solicitudes.value + solicitud
     }
 
-    fun actualizarEstado(
-        idSolicitud: Int,
+    // Cambiar el estado de una solicitud
+    fun cambiarEstado(
+        solicitudId: Int,
         nuevoEstado: String
     ) {
 
         _solicitudes.value =
             _solicitudes.value.map { solicitud ->
 
-                if (solicitud.id == idSolicitud) {
+                if (solicitud.id == solicitudId) {
 
                     solicitud.copy(
                         estado = nuevoEstado
@@ -40,10 +41,13 @@ class SolicitudViewModel : ViewModel() {
             }
     }
 
-    fun devolverPrestamo(idSolicitud: Int) {
+    // Devolver un préstamo
+    fun devolverPrestamo(
+        solicitudId: Int
+    ) {
 
-        actualizarEstado(
-            idSolicitud = idSolicitud,
+        cambiarEstado(
+            solicitudId = solicitudId,
             nuevoEstado = "Devuelto"
         )
     }

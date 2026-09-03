@@ -178,25 +178,11 @@ fun AppNavigation(
 
             SolicitudesScreen(
                 solicitudes = solicitudes,
+                onCambiarEstado = { solicitudId, nuevoEstado ->
 
-                onAprobarClick = { solicitud ->
-
-                    solicitudViewModel.actualizarEstado(
-                        idSolicitud = solicitud.id,
-                        nuevoEstado = "Aprobada"
-                    )
-
-                    equipoViewModel.actualizarDisponibilidad(
-                        idEquipo = solicitud.equipo.id,
-                        disponible = false
-                    )
-                },
-
-                onRechazarClick = { solicitud ->
-
-                    solicitudViewModel.actualizarEstado(
-                        idSolicitud = solicitud.id,
-                        nuevoEstado = "Rechazada"
+                    solicitudViewModel.cambiarEstado(
+                        solicitudId = solicitudId,
+                        nuevoEstado = nuevoEstado
                     )
                 }
             )

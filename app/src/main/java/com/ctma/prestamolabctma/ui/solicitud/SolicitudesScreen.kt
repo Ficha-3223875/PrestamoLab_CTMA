@@ -3,7 +3,6 @@ package com.ctma.prestamolabctma.ui.solicitud
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,8 +20,7 @@ import com.ctma.prestamolabctma.model.Solicitud
 @Composable
 fun SolicitudesScreen(
     solicitudes: List<Solicitud>,
-    onAprobarClick: (Solicitud) -> Unit,
-    onRechazarClick: (Solicitud) -> Unit
+    onCambiarEstado: (Int, String) -> Unit
 ) {
 
     Column(
@@ -47,26 +45,31 @@ fun SolicitudesScreen(
         if (solicitudes.isEmpty()) {
 
             Text(
-                text = "No tienes solicitudes registradas."
+                text = "No hay solicitudes registradas."
             )
 
         } else {
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 items(solicitudes) { solicitud ->
 
                     SolicitudCard(
                         solicitud = solicitud,
-                        onAprobarClick = {
-                            onAprobarClick(solicitud)
+                        onAprobar = {
+                            onCambiarEstado(
+                                solicitud.id,
+                                "Aprobada"
+                            )
                         },
-                        onRechazarClick = {
-                            onRechazarClick(solicitud)
+                        onRechazar = {
+                            onCambiarEstado(
+                                solicitud.id,
+                                "Rechazada"
+                            )
                         }
                     )
                 }
@@ -78,8 +81,8 @@ fun SolicitudesScreen(
 @Composable
 fun SolicitudCard(
     solicitud: Solicitud,
-    onAprobarClick: () -> Unit,
-    onRechazarClick: () -> Unit
+    onAprobar: () -> Unit,
+    onRechazar: () -> Unit
 ) {
 
     Card(
@@ -124,14 +127,14 @@ fun SolicitudCard(
                 ) {
 
                     Button(
-                        onClick = onAprobarClick,
+                        onClick = onAprobar,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Aprobar")
                     }
 
                     Button(
-                        onClick = onRechazarClick,
+                        onClick = onRechazar,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Rechazar")
