@@ -193,11 +193,26 @@ fun AppNavigation(
         // =====================================================
         // SOLICITUDES
         // =====================================================
-
         composable("solicitudes") {
 
             SolicitudesScreen(
-                solicitudes = solicitudes
+                solicitudes = solicitudes,
+
+                onAprobarClick = { solicitud ->
+
+                    solicitudViewModel.actualizarEstado(
+                        idSolicitud = solicitud.id,
+                        nuevoEstado = "Aprobada"
+                    )
+                },
+
+                onRechazarClick = { solicitud ->
+
+                    solicitudViewModel.actualizarEstado(
+                        idSolicitud = solicitud.id,
+                        nuevoEstado = "Rechazada"
+                    )
+                }
             )
         }
     }

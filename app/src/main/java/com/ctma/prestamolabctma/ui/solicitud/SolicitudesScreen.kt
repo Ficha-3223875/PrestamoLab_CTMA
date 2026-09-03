@@ -2,12 +2,14 @@ package com.ctma.prestamolabctma.ui.solicitud
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,7 +20,9 @@ import com.ctma.prestamolabctma.model.Solicitud
 
 @Composable
 fun SolicitudesScreen(
-    solicitudes: List<Solicitud>
+    solicitudes: List<Solicitud>,
+    onAprobarClick: (Solicitud) -> Unit,
+    onRechazarClick: (Solicitud) -> Unit
 ) {
 
     Column(
@@ -57,7 +61,13 @@ fun SolicitudesScreen(
                 items(solicitudes) { solicitud ->
 
                     SolicitudCard(
-                        solicitud = solicitud
+                        solicitud = solicitud,
+                        onAprobarClick = {
+                            onAprobarClick(solicitud)
+                        },
+                        onRechazarClick = {
+                            onRechazarClick(solicitud)
+                        }
                     )
                 }
             }
@@ -67,7 +77,9 @@ fun SolicitudesScreen(
 
 @Composable
 fun SolicitudCard(
-    solicitud: Solicitud
+    solicitud: Solicitud,
+    onAprobarClick: () -> Unit,
+    onRechazarClick: () -> Unit
 ) {
 
     Card(
@@ -75,7 +87,8 @@ fun SolicitudCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             Text(
@@ -84,29 +97,47 @@ fun SolicitudCard(
             )
 
             Text(
-                text = "Tipo: ${solicitud.equipo.tipo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Tipo: ${solicitud.equipo.tipo}"
             )
 
             Text(
-                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}"
             )
 
             Text(
-                text = "Fecha de devolución: ${solicitud.fechaDevolucion}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Fecha de devolución: ${solicitud.fechaDevolucion}"
             )
 
             Text(
-                text = "Motivo: ${solicitud.motivo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Motivo: ${solicitud.motivo}"
             )
 
             Text(
-                text = "Estado: ${solicitud.estado}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Estado: ${solicitud.estado}"
             )
+
+            if (solicitud.estado.equals("Pendiente", ignoreCase = true)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Button(
+                        onClick = onAprobarClick,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Aprobar")
+                    }
+
+                    Button(
+                        onClick = onRechazarClick,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Rechazar")
+                    }
+                }
+            }
         }
     }
 }
