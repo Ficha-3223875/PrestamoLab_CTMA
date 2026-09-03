@@ -59,7 +59,10 @@ fun EquiposScreen() {
 
         Text(
             text = "Gestión de equipos",
-            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 16.dp
+            )
         )
 
         LazyColumn(
@@ -70,7 +73,9 @@ fun EquiposScreen() {
 
             items(equipos) { equipo ->
 
-                EquipoCard(equipo = equipo)
+                EquipoCard(
+                    equipo = equipo
+                )
             }
         }
     }
@@ -86,7 +91,8 @@ fun EquipoCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             Text(
@@ -95,17 +101,15 @@ fun EquipoCard(
             )
 
             Text(
-                text = "Tipo: ${equipo.tipo}",
-                modifier = Modifier.padding(top = 6.dp)
+                text = "Tipo: ${equipo.tipo}"
             )
 
             Text(
                 text = if (equipo.disponible) {
-                    "Disponible"
+                    "Estado: Disponible"
                 } else {
-                    "No disponible"
-                },
-                modifier = Modifier.padding(top = 6.dp)
+                    "Estado: No disponible"
+                }
             )
         }
     }
