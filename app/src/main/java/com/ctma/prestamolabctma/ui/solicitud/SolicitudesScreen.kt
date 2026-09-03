@@ -36,38 +36,24 @@ fun SolicitudesScreen(
         )
 
         Text(
-            text = "Gestiona las solicitudes de préstamo",
+            text = "Gestión de solicitudes de préstamo",
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 16.dp
             )
         )
 
-        Button(
-            onClick = onVolverClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Volver al inicio"
-            )
-        }
-
         if (solicitudes.isEmpty()) {
 
             Text(
-                text = "No hay solicitudes registradas.",
-                modifier = Modifier.padding(top = 16.dp)
+                text = "No hay solicitudes registradas."
             )
 
         } else {
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 16.dp),
-
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-
                 contentPadding = PaddingValues(
                     bottom = 16.dp
                 )
@@ -81,6 +67,15 @@ fun SolicitudesScreen(
                     )
                 }
             }
+        }
+
+        Button(
+            onClick = onVolverClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Volver"
+            )
         }
     }
 }
@@ -126,8 +121,12 @@ fun SolicitudCard(
             )
 
             if (
-                solicitud.estado.equals(
-                    "Pendiente",
+                !solicitud.estado.equals(
+                    "Aprobada",
+                    ignoreCase = true
+                ) &&
+                !solicitud.estado.equals(
+                    "Rechazada",
                     ignoreCase = true
                 )
             ) {
@@ -142,7 +141,7 @@ fun SolicitudCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Aprobar solicitud"
+                        text = "Aprobar"
                     )
                 }
 
@@ -156,7 +155,7 @@ fun SolicitudCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Rechazar solicitud"
+                        text = "Rechazar"
                     )
                 }
             }
