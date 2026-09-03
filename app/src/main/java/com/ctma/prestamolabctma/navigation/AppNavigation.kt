@@ -24,6 +24,7 @@ import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
 
+
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel
@@ -31,18 +32,23 @@ fun AppNavigation(
 
     val navController = rememberNavController()
 
+    // ViewModel de solicitudes
     val solicitudViewModel: SolicitudViewModel = viewModel()
 
+    // ViewModel de equipos
     val equipoViewModel: EquipoViewModel = viewModel()
 
+    // Lista de solicitudes
     val solicitudes by solicitudViewModel
         .solicitudes
         .collectAsStateWithLifecycle()
 
+    // Lista de equipos
     val equipos by equipoViewModel
         .equipos
         .collectAsStateWithLifecycle()
 
+    // Equipo seleccionado
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
     }
@@ -52,7 +58,10 @@ fun AppNavigation(
         startDestination = "login"
     ) {
 
+        // =====================================================
         // LOGIN
+        // =====================================================
+
         composable("login") {
 
             LoginScreen(
@@ -70,7 +79,11 @@ fun AppNavigation(
             )
         }
 
+
+        // =====================================================
         // HOME
+        // =====================================================
+
         composable("home") {
 
             HomeScreen(
@@ -93,11 +106,16 @@ fun AppNavigation(
             )
         }
 
+
+        // =====================================================
         // CATÁLOGO
-// CATÁLOGO
+        // =====================================================
+
         composable("catalogo") {
 
             CatalogoScreen(
+                equipos = equipos,
+
                 onEquipoClick = { equipo ->
 
                     equipoSeleccionado = equipo
@@ -107,7 +125,11 @@ fun AppNavigation(
             )
         }
 
+
+        // =====================================================
         // DETALLE DEL EQUIPO
+        // =====================================================
+
         composable("detalle_equipo") {
 
             equipoSeleccionado?.let { equipo ->
@@ -123,7 +145,11 @@ fun AppNavigation(
             }
         }
 
+
+        // =====================================================
         // NUEVA SOLICITUD
+        // =====================================================
+
         composable("nueva_solicitud") {
 
             equipoSeleccionado?.let { equipo ->
@@ -147,13 +173,24 @@ fun AppNavigation(
                 )
             }
         }
-// EQUIPOS
+
+
+        // =====================================================
+        // EQUIPOS
+        // =====================================================
+
         composable("equipos") {
 
-            EquiposScreen()
+            EquiposScreen(
+                equipos = equipos
+            )
         }
 
+
+        // =====================================================
         // MIS PRÉSTAMOS
+        // =====================================================
+
         composable("prestamos") {
 
             MisPrestamosScreen(
@@ -173,11 +210,16 @@ fun AppNavigation(
             )
         }
 
+
+        // =====================================================
         // SOLICITUDES
+        // =====================================================
+
         composable("solicitudes") {
 
             SolicitudesScreen(
                 solicitudes = solicitudes,
+
                 onCambiarEstado = { solicitudId, nuevoEstado ->
 
                     solicitudViewModel.cambiarEstado(

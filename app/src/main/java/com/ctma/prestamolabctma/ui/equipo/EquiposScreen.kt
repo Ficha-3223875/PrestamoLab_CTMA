@@ -16,35 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Equipo
 
-@Composable
-fun EquiposScreen() {
 
-    val equipos = listOf(
-        Equipo(
-            id = 1,
-            nombre = "Portátil Lenovo",
-            tipo = "Computador",
-            disponible = true
-        ),
-        Equipo(
-            id = 2,
-            nombre = "Proyector Epson",
-            tipo = "Proyector",
-            disponible = true
-        ),
-        Equipo(
-            id = 3,
-            nombre = "Cámara Canon",
-            tipo = "Cámara",
-            disponible = false
-        ),
-        Equipo(
-            id = 4,
-            nombre = "Tablet Samsung",
-            tipo = "Tablet",
-            disponible = true
-        )
-    )
+@Composable
+fun EquiposScreen(
+    equipos: List<Equipo>
+) {
 
     Column(
         modifier = Modifier
@@ -65,21 +41,33 @@ fun EquiposScreen() {
             )
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
+        if (equipos.isEmpty()) {
 
-            items(equipos) { equipo ->
+            Text(
+                text = "No hay equipos registrados."
+            )
 
-                EquipoCard(
-                    equipo = equipo
+        } else {
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(
+                    bottom = 16.dp
                 )
+            ) {
+
+                items(equipos) { equipo ->
+
+                    EquipoCard(
+                        equipo = equipo
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun EquipoCard(
