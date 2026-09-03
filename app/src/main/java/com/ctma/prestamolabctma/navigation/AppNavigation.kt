@@ -5,9 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
 import com.ctma.prestamolabctma.ui.equipo.DetalleEquipoScreen
@@ -18,7 +21,9 @@ import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
-import com.ctma.prestamolabctma.model.Solicitud
+import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
+import androidx.compose.runtime.collectAsState
+
 
 @Composable
 fun AppNavigation(
@@ -27,11 +32,12 @@ fun AppNavigation(
 
     val navController = rememberNavController()
 
+    val solicitudViewModel: SolicitudViewModel = viewModel()
+
+    val solicitudes by solicitudViewModel.solicitudes.collectAsStateWithLifecycle()
+
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
-    }
-    var solicitudes by remember {
-        mutableStateOf<List<Solicitud>>(emptyList())
     }
 
     NavHost(
@@ -62,12 +68,15 @@ fun AppNavigation(
                 onCatalogoClick = {
                     navController.navigate("catalogo")
                 },
+
                 onEquiposClick = {
                     navController.navigate("equipos")
                 },
+
                 onPrestamosClick = {
                     navController.navigate("prestamos")
                 },
+
                 onSolicitudesClick = {
                     navController.navigate("solicitudes")
                 }
@@ -94,6 +103,7 @@ fun AppNavigation(
 
                 DetalleEquipoScreen(
                     equipo = equipo,
+
                     onSolicitarClick = {
 
                         navController.navigate("nueva_solicitud")
@@ -109,9 +119,10 @@ fun AppNavigation(
 
                 SolicitudScreen(
                     equipo = equipo,
+
                     onSolicitudEnviada = { solicitud ->
 
-                        solicitudes = solicitudes + solicitud
+                        solicitudViewModel.agregarSolicitud(solicitud)
 
                         navController.navigate("solicitudes") {
                             popUpTo("nueva_solicitud") {
@@ -137,6 +148,7 @@ fun AppNavigation(
 
         // SOLICITUDES
         composable("solicitudes") {
+
             SolicitudesScreen(
                 solicitudes = solicitudes
             )
