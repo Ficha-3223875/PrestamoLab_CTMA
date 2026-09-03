@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,26 +30,27 @@ fun HomeScreen(
     ) {
 
         Text(
-            text = "PrestamoLab CTMA"
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
+            text = "PrestamoLab CTMA",
+            style = MaterialTheme.typography.headlineLarge
         )
 
         Text(
-            text = "Bienvenido"
+            text = "Sistema de préstamo de equipos",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(top = 8.dp)
         )
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(32.dp)
         )
 
         Button(
             onClick = onCatalogoClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Catálogo")
+            Text(
+                text = "Catálogo"
+            )
         }
 
         Spacer(
@@ -59,18 +61,9 @@ fun HomeScreen(
             onClick = onEquiposClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Equipos")
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Button(
-            onClick = onPrestamosClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Mis préstamos")
+            Text(
+                text = "Equipos"
+            )
         }
 
         Spacer(
@@ -81,7 +74,22 @@ fun HomeScreen(
             onClick = onSolicitudesClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Solicitudes")
+            Text(
+                text = "Solicitudes"
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = onPrestamosClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Mis préstamos"
+            )
         }
     }
 }
