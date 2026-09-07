@@ -7,5 +7,5 @@ data class Usuario(
     val password: String,
     val programa: String,
     val ficha: String,
-    val rol: String = "Aprendiz"
+    val rol: String
 )

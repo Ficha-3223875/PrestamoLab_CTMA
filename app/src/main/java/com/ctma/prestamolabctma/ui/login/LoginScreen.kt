@@ -24,6 +24,7 @@ import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
+    onRegistroClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -105,6 +106,18 @@ fun LoginScreen(
             Text(
                 text = mensaje
             )
+        }
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        Button(
+            onClick = {
+                onRegistroClick()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Registrarse")
         }
     }
 }

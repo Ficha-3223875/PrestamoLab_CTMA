@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
+
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
 import com.ctma.prestamolabctma.ui.equipo.DetalleEquipoScreen
@@ -23,7 +24,11 @@ import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
-
+import com.ctma.prestamolabctma.data.api.RetrofitInstance
+import com.ctma.prestamolabctma.data.repository.UsuarioRepository
+import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
+import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
+import com.ctma.prestamolabctma.ui.registro.RegistroScreen
 
 @Composable
 fun AppNavigation(
@@ -37,6 +42,15 @@ fun AppNavigation(
 
     // ViewModel de equipos
     val equipoViewModel: EquipoViewModel = viewModel()
+
+    // ViewModel de registro
+    val registroViewModel: RegistroViewModel = viewModel(
+        factory = RegistroViewModelFactory(
+            UsuarioRepository(
+                RetrofitInstance.api
+            )
+        )
+    )
 
     // Lista de solicitudes
     val solicitudes by solicitudViewModel
@@ -66,19 +80,36 @@ fun AppNavigation(
 
             LoginScreen(
                 loginViewModel = loginViewModel,
-
                 onLoginSuccess = {
-
                     navController.navigate("home") {
-
                         popUpTo("login") {
                             inclusive = true
                         }
                     }
+                },
+                onRegistroClick = {
+                    navController.navigate("registro")
                 }
             )
         }
+// =====================================================
+// REGISTRO
+// =====================================================
 
+        composable("registro") {
+
+            RegistroScreen(
+                onRegistroExitoso = { usuario ->
+
+                    registroViewModel.registrarUsuario(usuario)
+
+                },
+
+                onVolverLogin = {
+                    navController.popBackStack()
+                }
+            )
+        }
 
         // =====================================================
         // HOME

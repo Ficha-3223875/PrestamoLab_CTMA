@@ -200,8 +200,11 @@ fun RegistroScreen(
                             correo = correo,
                             password = password,
                             programa = programa,
-                            ficha = ficha
+                            ficha = ficha,
+                            rol = "Aprendiz"
                         )
+
+                        onRegistroExitoso(usuario)
 
                         onRegistroExitoso(usuario)
                     }
