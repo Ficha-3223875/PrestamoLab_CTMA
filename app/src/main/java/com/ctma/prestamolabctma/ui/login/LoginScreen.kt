@@ -1,6 +1,5 @@
 package com.ctma.prestamolabctma.ui.login
 
-import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +37,13 @@ fun LoginScreen(
     }
 
     val mensaje by loginViewModel.mensaje.collectAsState()
+    val loginExitoso by loginViewModel.loginExitoso.collectAsState()
+    val cargando by loginViewModel.cargando.collectAsState()
+
+    if (loginExitoso) {
+        loginViewModel.limpiarLoginExitoso()
+        onLoginSuccess()
+    }
 
     Column(
         modifier = modifier
@@ -89,24 +96,19 @@ fun LoginScreen(
                     correo = correo,
                     password = password
                 )
-
-                if (correo.isNotBlank() && password.isNotBlank()) {
-                    onLoginSuccess()
-                }
             },
+            enabled = !cargando,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Iniciar sesión")
-        }
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        if (mensaje.isNotEmpty()) {
             Text(
-                text = mensaje
+                if (cargando) {
+                    "Iniciando sesión..."
+                } else {
+                    "Iniciar sesión"
+                }
             )
         }
+
         Spacer(
             modifier = Modifier.height(16.dp)
         )
@@ -118,6 +120,16 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Registrarse")
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        if (mensaje.isNotEmpty()) {
+            Text(
+                text = mensaje
+            )
         }
     }
 }

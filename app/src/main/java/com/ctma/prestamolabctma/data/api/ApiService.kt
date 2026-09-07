@@ -11,4 +11,9 @@ interface ApiService {
     suspend fun registrarUsuario(
         @Body usuario: Usuario
     ): Response<Usuario>
+
+    @POST("login")
+    suspend fun iniciarSesion(
+        @Body usuario: Usuario
+    ): Response<Usuario>
 }

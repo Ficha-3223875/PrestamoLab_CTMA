@@ -8,6 +8,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ctma.prestamolabctma.navigation.AppNavigation
 import com.ctma.prestamolabctma.ui.theme.PrestamoLabCTMATheme
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
+import com.ctma.prestamolabctma.data.api.RetrofitInstance
+import com.ctma.prestamolabctma.data.repository.LoginRepository
+import com.ctma.prestamolabctma.viewmodel.LoginViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -19,7 +22,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             PrestamoLabCTMATheme {
 
-                val loginViewModel: LoginViewModel = viewModel()
+                val loginViewModel: LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(
+                        LoginRepository(
+                            RetrofitInstance.api
+                        )
+                    )
+                )
 
                 AppNavigation(
                     loginViewModel = loginViewModel
