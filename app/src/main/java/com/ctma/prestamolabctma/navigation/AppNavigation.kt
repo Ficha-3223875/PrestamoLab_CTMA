@@ -32,7 +32,8 @@ import com.ctma.prestamolabctma.ui.registro.RegistroScreen
 
 @Composable
 fun AppNavigation(
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    sesionActiva: Boolean
 ) {
 
     val navController = rememberNavController()
@@ -69,7 +70,7 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = if (sesionActiva) "home" else "login"
     ) {
 
         // =====================================================

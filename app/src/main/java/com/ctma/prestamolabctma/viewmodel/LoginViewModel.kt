@@ -3,12 +3,14 @@ package com.ctma.prestamolabctma.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ctma.prestamolabctma.data.repository.LoginRepository
+import com.ctma.prestamolabctma.data.session.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _mensaje = MutableStateFlow("")
@@ -41,20 +43,30 @@ class LoginViewModel(
             _mensaje.value = ""
 
             val resultado = repository.iniciarSesion(
-                correo = correo,
-                password = password
+                correo,
+                password
             )
 
-            resultado
-                .onSuccess {
-                    _loginExitoso.value = true
-                    _mensaje.value = "Inicio de sesión exitoso"
-                }
-                .onFailure { error ->
-                    _loginExitoso.value = false
-                    _mensaje.value =
-                        error.message ?: "No se pudo iniciar sesión"
-                }
+            resultado.onSuccess { usuario ->
+
+                sessionManager.guardarSesion(
+                    correo = usuario.correo,
+                    rol = usuario.rol
+                )
+
+                _loginExitoso.value = true
+
+                _mensaje.value =
+                    "Inicio de sesión exitoso"
+            }
+
+            resultado.onFailure {
+
+                _loginExitoso.value = false
+
+                _mensaje.value =
+                    it.message ?: "Error al iniciar sesión"
+            }
 
             _cargando.value = false
         }

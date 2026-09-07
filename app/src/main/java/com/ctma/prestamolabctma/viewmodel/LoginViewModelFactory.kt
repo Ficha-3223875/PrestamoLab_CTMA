@@ -3,9 +3,11 @@ package com.ctma.prestamolabctma.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ctma.prestamolabctma.data.repository.LoginRepository
+import com.ctma.prestamolabctma.data.session.SessionManager
 
 class LoginViewModelFactory(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    private val sessionManager: SessionManager
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -13,9 +15,15 @@ class LoginViewModelFactory(
         modelClass: Class<T>
     ): T {
 
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+        if (
+            modelClass.isAssignableFrom(
+                LoginViewModel::class.java
+            )
+        ) {
+
             return LoginViewModel(
-                repository
+                repository,
+                sessionManager
             ) as T
         }
 
