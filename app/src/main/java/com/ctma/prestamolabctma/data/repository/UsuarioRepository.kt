@@ -15,33 +15,52 @@ class UsuarioRepository(
 
             val response = apiService.registrarUsuario(usuario)
 
-            if (response.isSuccessful) {
+            when {
+                response.isSuccessful -> {
 
-                val usuarioRegistrado = response.body()
+                    val usuarioRegistrado = response.body()
 
-                if (usuarioRegistrado != null) {
+                    if (usuarioRegistrado != null) {
+                        Result.success(usuarioRegistrado)
+                    } else {
+                        Result.failure(
+                            Exception("La respuesta del servidor está vacía")
+                        )
+                    }
+                }
 
-                    Result.success(usuarioRegistrado)
-
-                } else {
-
+                response.code() == 400 -> {
                     Result.failure(
-                        Exception("La respuesta del servidor está vacía")
+                        Exception(
+                            "Datos inválidos. Verifica la información ingresada"
+                        )
                     )
                 }
 
-            } else {
-
-                Result.failure(
-                    Exception(
-                        "Error ${response.code()}: ${response.message()}"
+                response.code() == 500 -> {
+                    Result.failure(
+                        Exception(
+                            "Error interno del servidor. Intenta nuevamente"
+                        )
                     )
-                )
+                }
+
+                else -> {
+                    Result.failure(
+                        Exception(
+                            "Error del servidor: ${response.code()}"
+                        )
+                    )
+                }
             }
 
         } catch (e: Exception) {
 
-            Result.failure(e)
+            Result.failure(
+                Exception(
+                    "No se pudo conectar con el servidor"
+                )
+            )
         }
     }
 }

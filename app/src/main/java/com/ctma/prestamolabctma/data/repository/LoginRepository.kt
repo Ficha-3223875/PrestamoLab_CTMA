@@ -26,25 +26,39 @@ class LoginRepository(
 
             val response = apiService.iniciarSesion(usuario)
 
-            if (response.isSuccessful) {
+            when {
+                response.isSuccessful -> {
 
-                val usuarioRespuesta = response.body()
+                    val usuarioRespuesta = response.body()
 
-                if (usuarioRespuesta != null) {
-                    Result.success(usuarioRespuesta)
-                } else {
+                    if (usuarioRespuesta != null) {
+                        Result.success(usuarioRespuesta)
+                    } else {
+                        Result.failure(
+                            Exception("La respuesta del servidor está vacía")
+                        )
+                    }
+                }
+
+                response.code() == 400 -> {
                     Result.failure(
-                        Exception("La respuesta del servidor está vacía")
+                        Exception("Datos incorrectos. Verifica el correo y la contraseña")
                     )
                 }
 
-            } else {
-
-                Result.failure(
-                    Exception(
-                        "Credenciales incorrectas"
+                response.code() == 500 -> {
+                    Result.failure(
+                        Exception("Error interno del servidor. Intenta nuevamente")
                     )
-                )
+                }
+
+                else -> {
+                    Result.failure(
+                        Exception(
+                            "Error del servidor: ${response.code()}"
+                        )
+                    )
+                }
             }
 
         } catch (e: Exception) {
