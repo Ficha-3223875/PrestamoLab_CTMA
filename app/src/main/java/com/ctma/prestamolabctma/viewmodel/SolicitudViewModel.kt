@@ -40,6 +40,26 @@ class SolicitudViewModel : ViewModel() {
             }
     }
 
+    fun cancelarSolicitud(
+        solicitudId: Int
+    ) {
+
+        _solicitudes.value =
+            _solicitudes.value.map { solicitud ->
+
+                if (solicitud.id == solicitudId) {
+
+                    solicitud.copy(
+                        estado = "Cancelada"
+                    )
+
+                } else {
+
+                    solicitud
+                }
+            }
+    }
+
     fun devolverPrestamo(
         solicitudId: Int
     ) {

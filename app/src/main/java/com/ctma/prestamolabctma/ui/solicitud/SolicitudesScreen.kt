@@ -8,11 +8,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Solicitud
@@ -21,7 +27,8 @@ import com.ctma.prestamolabctma.model.Solicitud
 fun SolicitudesScreen(
     solicitudes: List<Solicitud>,
     onVolverClick: () -> Unit,
-    onCambiarEstado: (Int, String) -> Unit
+    onCambiarEstado: (Int, String) -> Unit,
+    onCancelarSolicitud: (Int) -> Unit
 ) {
 
     Column(
@@ -63,7 +70,8 @@ fun SolicitudesScreen(
 
                     SolicitudCard(
                         solicitud = solicitud,
-                        onCambiarEstado = onCambiarEstado
+                        onCambiarEstado = onCambiarEstado,
+                        onCancelarSolicitud = onCancelarSolicitud
                     )
                 }
             }
@@ -83,8 +91,13 @@ fun SolicitudesScreen(
 @Composable
 fun SolicitudCard(
     solicitud: Solicitud,
-    onCambiarEstado: (Int, String) -> Unit
+    onCambiarEstado: (Int, String) -> Unit,
+    onCancelarSolicitud: (Int) -> Unit
 ) {
+
+    var mostrarDialogoCancelar by remember {
+        mutableStateOf(false)
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -120,13 +133,10 @@ fun SolicitudCard(
                 text = "Estado: ${solicitud.estado}"
             )
 
+            // Acciones para solicitudes pendientes
             if (
-                !solicitud.estado.equals(
-                    "Aprobada",
-                    ignoreCase = true
-                ) &&
-                !solicitud.estado.equals(
-                    "Rechazada",
+                solicitud.estado.equals(
+                    "Pendiente",
                     ignoreCase = true
                 )
             ) {
@@ -158,7 +168,77 @@ fun SolicitudCard(
                         text = "Rechazar"
                     )
                 }
+
+                Button(
+                    onClick = {
+                        mostrarDialogoCancelar = true
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Cancelar solicitud"
+                    )
+                }
+            }
+
+            // Mensaje para solicitudes aprobadas
+            if (
+                solicitud.estado.equals(
+                    "Aprobada",
+                    ignoreCase = true
+                )
+            ) {
+
+                Text(
+                    text = "No puedes cancelar una solicitud que ya fue aprobada.",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
+    }
+
+    // Diálogo de confirmación
+    if (mostrarDialogoCancelar) {
+
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoCancelar = false
+            },
+            title = {
+                Text(
+                    text = "Cancelar solicitud"
+                )
+            },
+            text = {
+                Text(
+                    text = "¿Estás seguro de que deseas cancelar esta solicitud?"
+                )
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+                        onCancelarSolicitud(solicitud.id)
+                        mostrarDialogoCancelar = false
+                    }
+                ) {
+                    Text(
+                        text = "Confirmar"
+                    )
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        mostrarDialogoCancelar = false
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar"
+                    )
+                }
+            }
+        )
     }
 }
