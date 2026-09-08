@@ -3,6 +3,7 @@ package com.ctma.prestamolabctma.ui.misprestamos
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,13 +25,6 @@ fun MisPrestamosScreen(
     onDevolverClick: (Solicitud) -> Unit
 ) {
 
-    val prestamosAprobados = solicitudes.filter {
-        it.estado.equals(
-            "Aprobada",
-            ignoreCase = true
-        )
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,12 +32,12 @@ fun MisPrestamosScreen(
     ) {
 
         Text(
-            text = "Mis préstamos",
+            text = "Historial de préstamos",
             style = MaterialTheme.typography.headlineMedium
         )
 
         Text(
-            text = "Préstamos aprobados",
+            text = "Consulta tus préstamos activos y pasados.",
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 16.dp
@@ -59,10 +53,10 @@ fun MisPrestamosScreen(
             )
         }
 
-        if (prestamosAprobados.isEmpty()) {
+        if (solicitudes.isEmpty()) {
 
             Text(
-                text = "No tienes préstamos aprobados.",
+                text = "No tienes préstamos registrados.",
                 modifier = Modifier.padding(top = 16.dp)
             )
 
@@ -80,7 +74,7 @@ fun MisPrestamosScreen(
                 )
             ) {
 
-                items(prestamosAprobados) { solicitud ->
+                items(solicitudes) { solicitud ->
 
                     PrestamoCard(
                         solicitud = solicitud,
@@ -128,20 +122,54 @@ fun PrestamoCard(
                 text = "Motivo: ${solicitud.motivo}"
             )
 
-            Text(
-                text = "Estado: ${solicitud.estado}"
+            EstadoPrestamo(
+                estado = solicitud.estado
             )
 
-            Button(
-                onClick = {
-                    onDevolverClick(solicitud)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Devolver préstamo"
-                )
+            if (solicitud.estado.equals("Aprobada", ignoreCase = true)) {
+
+                Button(
+                    onClick = {
+                        onDevolverClick(solicitud)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Devolver préstamo"
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun EstadoPrestamo(
+    estado: String
+) {
+
+    val indicador = when {
+
+        estado.equals("Aprobada", ignoreCase = true) ->
+            "🟢 Aprobado"
+
+        estado.equals("Pendiente", ignoreCase = true) ->
+            "🟡 Pendiente"
+
+        estado.equals("Devuelto", ignoreCase = true) ->
+            "🔵 Devuelto"
+
+        else ->
+            "⚪ $estado"
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Text(
+            text = "Estado: $indicador",
+            style = MaterialTheme.typography.titleSmall
+        )
     }
 }
