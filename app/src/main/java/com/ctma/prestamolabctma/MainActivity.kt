@@ -9,6 +9,7 @@ import com.ctma.prestamolabctma.data.api.RetrofitInstance
 import com.ctma.prestamolabctma.data.repository.LoginRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
 import com.ctma.prestamolabctma.navigation.AppNavigation
+import com.ctma.prestamolabctma.notification.NotificationHelper
 import com.ctma.prestamolabctma.ui.theme.PrestamoLabCTMATheme
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModelFactory
@@ -21,6 +22,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val sessionManager = SessionManager(applicationContext)
+
+        NotificationHelper.crearCanal(this)
 
         setContent {
 

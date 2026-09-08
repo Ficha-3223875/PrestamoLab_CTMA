@@ -29,7 +29,9 @@ import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
 import com.ctma.prestamolabctma.ui.registro.RegistroScreen
-
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import com.ctma.prestamolabctma.notification.NotificationHelper
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel,
@@ -37,6 +39,7 @@ fun AppNavigation(
 ) {
 
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     // ViewModel de solicitudes
     val solicitudViewModel: SolicitudViewModel = viewModel()
@@ -267,20 +270,51 @@ fun AppNavigation(
                         nuevoEstado = nuevoEstado
                     )
 
-                    if (nuevoEstado.equals("Aprobada", ignoreCase = true)) {
+                    val solicitud = solicitudes.find {
+                        it.id == solicitudId
+                    }
 
-                        val solicitud = solicitudes.find {
-                            it.id == solicitudId
-                        }
+                    solicitud?.let {
 
-                        solicitud?.let {
+                        if (nuevoEstado.equals("Aprobada", ignoreCase = true)) {
 
                             equipoViewModel.actualizarDisponibilidad(
                                 idEquipo = it.equipo.id,
                                 disponible = false
                             )
+
+                            NotificationHelper.programarRecordatorio(
+                                context = context,
+                                fechaDevolucion = it.fechaDevolucion,
+                                equipo = it.equipo.nombre,
+                                solicitudId = it.id
+                            )
+
+                            NotificationHelper.mostrarNotificacion(
+                                context = context,
+                                titulo = "Solicitud aprobada",
+                                mensaje = "Tu solicitud para ${it.equipo.nombre} fue aprobada.",
+                                id = solicitudId
+                            )
+                        }
+
+                        if (nuevoEstado.equals("Rechazada", ignoreCase = true)) {
+
+                            NotificationHelper.mostrarNotificacion(
+                                context = context,
+                                titulo = "Solicitud rechazada",
+                                mensaje = "Tu solicitud para ${it.equipo.nombre} fue rechazada.",
+                                id = solicitudId
+                            )
                         }
                     }
+                },
+
+                onCancelarSolicitud = { solicitudId ->
+
+                    solicitudViewModel.cancelarSolicitud(
+                        solicitudId
+                    )
                 }
             )
         }
