@@ -79,4 +79,21 @@ class SolicitudViewModel : ViewModel() {
                 }
             }
     }
+    fun rechazarSolicitud(
+        solicitudId: Int,
+        motivoRechazo: String
+    ) {
+        _solicitudes.value =
+            _solicitudes.value.map { solicitud ->
+
+                if (solicitud.id == solicitudId) {
+                    solicitud.copy(
+                        estado = "Rechazada",
+                        motivoRechazo = motivoRechazo
+                    )
+                } else {
+                    solicitud
+                }
+            }
+    }
 }

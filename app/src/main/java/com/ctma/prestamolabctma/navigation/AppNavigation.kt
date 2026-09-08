@@ -5,33 +5,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-
+import com.ctma.prestamolabctma.data.api.RetrofitInstance
+import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.model.Equipo
+import com.ctma.prestamolabctma.notification.NotificationHelper
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
 import com.ctma.prestamolabctma.ui.equipo.DetalleEquipoScreen
 import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
 import com.ctma.prestamolabctma.ui.home.HomeScreen
 import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
+import com.ctma.prestamolabctma.ui.registro.RegistroScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
-import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
-import com.ctma.prestamolabctma.data.api.RetrofitInstance
-import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
-import com.ctma.prestamolabctma.ui.registro.RegistroScreen
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
-import com.ctma.prestamolabctma.notification.NotificationHelper
+import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
+
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel,
@@ -39,6 +38,7 @@ fun AppNavigation(
 ) {
 
     val navController = rememberNavController()
+
     val context = LocalContext.current
 
     // ViewModel de solicitudes
@@ -84,6 +84,7 @@ fun AppNavigation(
 
             LoginScreen(
                 loginViewModel = loginViewModel,
+
                 onLoginSuccess = {
                     navController.navigate("home") {
                         popUpTo("login") {
@@ -91,22 +92,25 @@ fun AppNavigation(
                         }
                     }
                 },
+
                 onRegistroClick = {
                     navController.navigate("registro")
                 }
             )
         }
-// =====================================================
-// REGISTRO
-// =====================================================
+
+        // =====================================================
+        // REGISTRO
+        // =====================================================
 
         composable("registro") {
 
             RegistroScreen(
                 onRegistroExitoso = { usuario ->
 
-                    registroViewModel.registrarUsuario(usuario)
-
+                    registroViewModel.registrarUsuario(
+                        usuario
+                    )
                 },
 
                 onVolverLogin = {
@@ -141,7 +145,6 @@ fun AppNavigation(
             )
         }
 
-
         // =====================================================
         // CATÁLOGO
         // =====================================================
@@ -160,7 +163,6 @@ fun AppNavigation(
             )
         }
 
-
         // =====================================================
         // DETALLE DEL EQUIPO
         // =====================================================
@@ -173,13 +175,11 @@ fun AppNavigation(
                     equipo = equipo,
 
                     onSolicitarClick = {
-
                         navController.navigate("nueva_solicitud")
                     }
                 )
             }
         }
-
 
         // =====================================================
         // NUEVA SOLICITUD
@@ -209,7 +209,6 @@ fun AppNavigation(
             }
         }
 
-
         // =====================================================
         // EQUIPOS
         // =====================================================
@@ -220,7 +219,6 @@ fun AppNavigation(
                 equipos = equipos
             )
         }
-
 
         // =====================================================
         // MIS PRÉSTAMOS
@@ -249,7 +247,6 @@ fun AppNavigation(
             )
         }
 
-
         // =====================================================
         // SOLICITUDES
         // =====================================================
@@ -263,6 +260,7 @@ fun AppNavigation(
                     navController.popBackStack()
                 },
 
+                // Aprobar o rechazar solicitud
                 onCambiarEstado = { solicitudId, nuevoEstado ->
 
                     solicitudViewModel.cambiarEstado(
@@ -276,7 +274,16 @@ fun AppNavigation(
 
                     solicitud?.let {
 
-                        if (nuevoEstado.equals("Aprobada", ignoreCase = true)) {
+                        // -----------------------------------------
+                        // SOLICITUD APROBADA
+                        // -----------------------------------------
+
+                        if (
+                            nuevoEstado.equals(
+                                "Aprobada",
+                                ignoreCase = true
+                            )
+                        ) {
 
                             equipoViewModel.actualizarDisponibilidad(
                                 idEquipo = it.equipo.id,
@@ -298,7 +305,16 @@ fun AppNavigation(
                             )
                         }
 
-                        if (nuevoEstado.equals("Rechazada", ignoreCase = true)) {
+                        // -----------------------------------------
+                        // SOLICITUD RECHAZADA
+                        // -----------------------------------------
+
+                        if (
+                            nuevoEstado.equals(
+                                "Rechazada",
+                                ignoreCase = true
+                            )
+                        ) {
 
                             NotificationHelper.mostrarNotificacion(
                                 context = context,
@@ -310,10 +326,33 @@ fun AppNavigation(
                     }
                 },
 
+                // ---------------------------------------------
+                // CANCELAR SOLICITUD
+                // ---------------------------------------------
+
                 onCancelarSolicitud = { solicitudId ->
 
                     solicitudViewModel.cancelarSolicitud(
                         solicitudId
+                    )
+                },
+
+                // ---------------------------------------------
+                // RECHAZAR CON MOTIVO
+                // ---------------------------------------------
+
+                onRechazarSolicitud = { solicitudId, motivo ->
+
+                    solicitudViewModel.rechazarSolicitud(
+                        solicitudId = solicitudId,
+                        motivoRechazo = motivo
+                    )
+
+                    NotificationHelper.mostrarNotificacion(
+                        context = context,
+                        titulo = "Solicitud rechazada",
+                        mensaje = "Tu solicitud fue rechazada. Motivo: $motivo",
+                        id = solicitudId
                     )
                 }
             )

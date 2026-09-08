@@ -6,5 +6,6 @@ data class Solicitud(
     val fechaPrestamo: String,
     val fechaDevolucion: String,
     val motivo: String,
-    val estado: String
+    val estado: String,
+    val motivoRechazo: String = ""
 )

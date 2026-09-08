@@ -22,13 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Solicitud
+import androidx.compose.material3.OutlinedTextField
 
 @Composable
 fun SolicitudesScreen(
     solicitudes: List<Solicitud>,
     onVolverClick: () -> Unit,
     onCambiarEstado: (Int, String) -> Unit,
-    onCancelarSolicitud: (Int) -> Unit
+    onCancelarSolicitud: (Int) -> Unit,
+    onRechazarSolicitud: (Int, String) -> Unit
 ) {
 
     Column(
@@ -66,7 +68,11 @@ fun SolicitudesScreen(
                 )
             ) {
 
-                items(solicitudes) { solicitud ->
+                items(
+                    solicitudes.sortedBy {
+                        it.fechaPrestamo
+                    }
+                ) { solicitud ->
 
                     SolicitudCard(
                         solicitud = solicitud,
