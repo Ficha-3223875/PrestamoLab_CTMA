@@ -59,7 +59,25 @@ class SolicitudViewModel : ViewModel() {
                 }
             }
     }
+    fun iniciarPrestamo(
+        solicitudId: Int
+    ) {
 
+        _solicitudes.value =
+            _solicitudes.value.map { solicitud ->
+
+                if (solicitud.id == solicitudId) {
+
+                    solicitud.copy(
+                        estado = "En Préstamo"
+                    )
+
+                } else {
+
+                    solicitud
+                }
+            }
+    }
     fun devolverPrestamo(
         solicitudId: Int
     ) {

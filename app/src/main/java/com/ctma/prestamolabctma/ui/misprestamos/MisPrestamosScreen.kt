@@ -14,9 +14,18 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Solicitud
+import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MisPrestamosScreen(
@@ -66,9 +75,7 @@ fun MisPrestamosScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 16.dp),
-
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-
                 contentPadding = PaddingValues(
                     bottom = 16.dp
                 )
@@ -126,7 +133,12 @@ fun PrestamoCard(
                 estado = solicitud.estado
             )
 
-            if (solicitud.estado.equals("Aprobada", ignoreCase = true)) {
+            // Contador solamente cuando el equipo está en préstamo
+            if (solicitud.estado.equals("En Préstamo", ignoreCase = true)) {
+
+                ContadorDevolucion(
+                    fechaDevolucion = solicitud.fechaDevolucion
+                )
 
                 Button(
                     onClick = {
@@ -156,8 +168,17 @@ fun EstadoPrestamo(
         estado.equals("Pendiente", ignoreCase = true) ->
             "🟡 Pendiente"
 
+        estado.equals("En Préstamo", ignoreCase = true) ->
+            "🟠 En Préstamo"
+
         estado.equals("Devuelto", ignoreCase = true) ->
             "🔵 Devuelto"
+
+        estado.equals("Cancelada", ignoreCase = true) ->
+            "⚪ Cancelada"
+
+        estado.equals("Rechazada", ignoreCase = true) ->
+            "🔴 Rechazada"
 
         else ->
             "⚪ $estado"
@@ -172,4 +193,70 @@ fun EstadoPrestamo(
             style = MaterialTheme.typography.titleSmall
         )
     }
+}
+
+@Composable
+fun ContadorDevolucion(
+    fechaDevolucion: String
+) {
+
+    var tiempoRestante by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(fechaDevolucion) {
+
+        while (true) {
+
+            try {
+
+                val formato = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm",
+                    Locale.getDefault()
+                )
+
+                val fechaDevolucionCompleta =
+                    "$fechaDevolucion 12:00"
+
+                val fecha = formato.parse(
+                    fechaDevolucionCompleta
+                )
+
+                if (fecha != null) {
+
+                    val diferencia =
+                        fecha.time - Date().time
+
+                    if (diferencia <= 0) {
+
+                        tiempoRestante =
+                            "⚠️ Fecha de devolución cumplida"
+
+                    } else {
+
+                        val horas =
+                            diferencia / (1000 * 60 * 60)
+
+                        val minutos =
+                            (diferencia / (1000 * 60)) % 60
+
+                        tiempoRestante =
+                            "⏱️ Tiempo restante: ${horas}h ${minutos}min"
+                    }
+                }
+
+            } catch (e: Exception) {
+
+                tiempoRestante =
+                    "No se pudo calcular el tiempo restante"
+            }
+
+            delay(60_000)
+        }
+    }
+
+    Text(
+        text = tiempoRestante,
+        style = MaterialTheme.typography.bodyMedium
+    )
 }

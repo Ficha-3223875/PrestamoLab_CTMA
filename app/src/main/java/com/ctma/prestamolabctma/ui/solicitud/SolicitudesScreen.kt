@@ -174,7 +174,20 @@ fun SolicitudCard(
                         text = "Rechazar"
                     )
                 }
+                if (solicitud.estado.equals("Aprobada", ignoreCase = true)) {
 
+                    Button(
+                        onClick = {
+                            onCambiarEstado(
+                                solicitud.id,
+                                "En Préstamo"
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Entregar equipo")
+                    }
+                }
                 Button(
                     onClick = {
                         mostrarDialogoCancelar = true
