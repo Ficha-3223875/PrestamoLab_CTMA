@@ -1,4 +1,4 @@
-package com.example.prestamolabctma.model
+package com.example.prestamolab.model
 
 data class Estudiante(
     val id: String = "",

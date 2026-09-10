@@ -1,6 +1,6 @@
-package com.example.prestamolabctma.api
+package com.example.prestamolab.api
 
-import com.example.prestamolabctma.model.Estudiante
+import com.example.prestamolab.model.Estudiante
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -13,7 +13,7 @@ interface ApiService {
     fun registrarEstudiante(@Body estudiante: Estudiante): Call<Void>
 
     companion object {
-        private const val BASE_URL = "http://10.0.2.2:3000/api/" // Ajusta según la IP de tu servidor
+        private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
         fun create(): ApiService {
             return Retrofit.Builder()
