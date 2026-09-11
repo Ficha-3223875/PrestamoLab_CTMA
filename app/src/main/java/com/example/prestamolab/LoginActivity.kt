@@ -7,20 +7,10 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.prestamolab.api.RetrofitClient
-import com.example.prestamolab.model.LoginRequest
-import com.example.prestamolab.model.LoginResponse
 import com.example.prestamolab.util.SessionManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var etCorreo: EditText
-    private lateinit var etContrasena: EditText
-    private lateinit var btnLogin: Button
-    private lateinit var tvIrARegistro: TextView
     private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,58 +19,44 @@ class LoginActivity : AppCompatActivity() {
         sessionManager = SessionManager(this)
 
         if (sessionManager.isLoggedIn()) {
-            startActivity(Intent(this, SolicitudActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
         }
 
         setContentView(R.layout.activity_login)
 
-        etCorreo = findViewById(R.id.etCorreoLogin)
-        etContrasena = findViewById(R.id.etContrasenaLogin)
-        btnLogin = findViewById(R.id.btnLogin)
-        tvIrARegistro = findViewById(R.id.tvIrARegistro)
+        // TUS IDS EXACTOS DEL XML:
+        val etCorreo = findViewById<EditText>(R.id.etCorreoLogin)
+        val etPassword = findViewById<EditText>(R.id.etContrasenaLogin)
+        val btnIngresar = findViewById<Button>(R.id.btnLogin)
+        val tvRegistrarse = findViewById<TextView>(R.id.tvIrARegistro)
 
-        btnLogin.setOnClickListener {
-            realizarLoginRemoto()
-        }
+        btnIngresar.setOnClickListener {
+            val correo = etCorreo.text.toString().trim()
+            val password = etPassword.text.toString().trim()
 
-        tvIrARegistro.setOnClickListener {
-            startActivity(Intent(this, RegistroActivity::class.java))
-        }
-    }
-
-    private fun realizarLoginRemoto() {
-        val correo = etCorreo.text.toString().trim()
-        val contrasena = etContrasena.text.toString().trim()
-
-        if (correo.isEmpty() || contrasena.isEmpty()) {
-            Toast.makeText(this, "Por favor ingresa usuario y contraseña", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        btnLogin.isEnabled = false
-        val request = LoginRequest(correo, contrasena)
-
-        // Consumo remoto centralizado con RetrofitClient
-        RetrofitClient.instance.iniciarSesion(request).enqueue(object : Callback<LoginResponse> {
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                btnLogin.isEnabled = true
-                if (response.isSuccessful && response.body() != null) {
-                    val body = response.body()!!
-                    sessionManager.guardarSesion(body.token, correo)
-                    Toast.makeText(this@LoginActivity, "¡Bienvenido!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, SolicitudActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(this@LoginActivity, "Credenciales incorrectas o usuario no encontrado", Toast.LENGTH_SHORT).show()
-                }
+            if (correo.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor llena todos los campos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                btnLogin.isEnabled = true
-                Toast.makeText(this@LoginActivity, "Error de conexión con el servidor remoto: ${t.message}", Toast.LENGTH_LONG).show()
+            // Validar localmente evitando la llamada fallida al servidor 10.0.2.2
+            if (sessionManager.validarUsuarioLocal(correo, password)) {
+                sessionManager.guardarSesion("token_local", correo)
+                Toast.makeText(this, "Bienvenido $correo", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
             }
-        })
+        }
+
+        tvRegistrarse.setOnClickListener {
+            val intent = Intent(this, RegistroActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

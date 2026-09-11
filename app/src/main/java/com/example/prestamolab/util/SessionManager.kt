@@ -13,6 +13,21 @@ class SessionManager(context: Context) {
         private const val KEY_USER_EMAIL = "user_email"
     }
 
+    // --- MÉTODOS LOCALES ---
+    fun guardarUsuarioLocal(correo: String, pass: String) {
+        prefs.edit().putString("USER_$correo", pass).apply()
+    }
+
+    fun validarUsuarioLocal(correo: String, pass: String): Boolean {
+        // Credencial fija de prueba
+        if (correo == "angel@sena.edu.co" && pass == "123456") return true
+
+        // Credenciales registradas en la app
+        val storedPass = prefs.getString("USER_$correo", null)
+        return storedPass != null && storedPass == pass
+    }
+
+    // --- MÉTODOS EXISTENTES ---
     fun guardarSesion(token: String?, email: String) {
         val editor = prefs.edit()
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
@@ -23,6 +38,10 @@ class SessionManager(context: Context) {
 
     fun isLoggedIn(): Boolean {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
+    }
+
+    fun getCorreo(): String {
+        return prefs.getString(KEY_USER_EMAIL, "") ?: ""
     }
 
     fun cerrarSesion() {
