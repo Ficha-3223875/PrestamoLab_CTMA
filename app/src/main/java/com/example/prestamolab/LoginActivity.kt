@@ -7,15 +7,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.prestamolab.api.ApiService
+import com.example.prestamolab.api.RetrofitClient
 import com.example.prestamolab.model.LoginRequest
 import com.example.prestamolab.model.LoginResponse
 import com.example.prestamolab.util.SessionManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginActivity : AppCompatActivity() {
 
@@ -30,9 +28,8 @@ class LoginActivity : AppCompatActivity() {
 
         sessionManager = SessionManager(this)
 
-        // CP-02.3: Si ya hay sesión activa, entra directo a la app principal
         if (sessionManager.isLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, SolicitudActivity::class.java))
             finish()
             return
         }
@@ -45,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
         tvIrARegistro = findViewById(R.id.tvIrARegistro)
 
         btnLogin.setOnClickListener {
-            realizarLogin()
+            realizarLoginRemoto()
         }
 
         tvIrARegistro.setOnClickListener {
@@ -53,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun realizarLogin() {
+    private fun realizarLoginRemoto() {
         val correo = etCorreo.text.toString().trim()
         val contrasena = etContrasena.text.toString().trim()
 
@@ -62,34 +59,27 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.prestamolab.example.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val api = retrofit.create(ApiService::class.java)
+        btnLogin.isEnabled = false
         val request = LoginRequest(correo, contrasena)
 
-        // CA-02.1: Validación contra servidor
-        api.iniciarSesion(request).enqueue(object : Callback<LoginResponse> {
+        // Consumo remoto centralizado con RetrofitClient
+        RetrofitClient.instance.iniciarSesion(request).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                btnLogin.isEnabled = true
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
-
-                    // CA-02.2: Guardar sesión activa
                     sessionManager.guardarSesion(body.token, correo)
-
                     Toast.makeText(this@LoginActivity, "¡Bienvenido!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    startActivity(Intent(this@LoginActivity, SolicitudActivity::class.java))
                     finish()
                 } else {
-                    // CP-02.2: Rechazo genérico por seguridad
-                    Toast.makeText(this@LoginActivity, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LoginActivity, "Credenciales incorrectas o usuario no encontrado", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Error de red: ${t.message}", Toast.LENGTH_SHORT).show()
+                btnLogin.isEnabled = true
+                Toast.makeText(this@LoginActivity, "Error de conexión con el servidor remoto: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
