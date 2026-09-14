@@ -383,14 +383,64 @@ fun AppNavigation(
             }
         }
 
-        // =====================================================
-        // EQUIPOS
-        // =====================================================
+// =====================================================
+// EQUIPOS
+// =====================================================
 
         composable("equipos") {
 
             EquiposScreen(
                 equipos = equipos,
+
+                // ---------------------------------------------
+                // AGREGAR EQUIPO
+                // ---------------------------------------------
+
+                onAgregar = { nombre, tipo, codigo ->
+
+                    equipoViewModel.agregarEquipo(
+                        nombre = nombre,
+                        tipo = tipo,
+                        codigo = codigo
+                    )
+                },
+
+                // ---------------------------------------------
+                // EDITAR EQUIPO
+                // ---------------------------------------------
+
+                onEditar = {
+                        id,
+                        nombre,
+                        tipo,
+                        codigo,
+                        estado,
+                        disponible ->
+
+                    equipoViewModel.actualizarEquipo(
+                        id = id,
+                        nombre = nombre,
+                        tipo = tipo,
+                        codigo = codigo,
+                        estado = estado,
+                        disponible = disponible
+                    )
+                },
+
+                // ---------------------------------------------
+                // ELIMINAR EQUIPO
+                // ---------------------------------------------
+
+                onEliminar = { id ->
+
+                    equipoViewModel.eliminarEquipo(
+                        id
+                    )
+                },
+
+                // ---------------------------------------------
+                // REPORTAR INCIDENTE
+                // ---------------------------------------------
 
                 onReportarIncidente = {
                         equipo,
@@ -402,12 +452,24 @@ fun AppNavigation(
                     )
                 },
 
+                // ---------------------------------------------
+                // FINALIZAR MANTENIMIENTO
+                // ---------------------------------------------
+
                 onFinalizarMantenimiento = { equipo ->
 
-                    equipoViewModel
-                        .finalizarMantenimiento(
-                            equipoId = equipo.id
-                        )
+                    equipoViewModel.finalizarMantenimiento(
+                        equipoId = equipo.id
+                    )
+                },
+
+                // ---------------------------------------------
+                // VOLVER
+                // ---------------------------------------------
+
+                onVolver = {
+
+                    navController.popBackStack()
                 }
             )
         }

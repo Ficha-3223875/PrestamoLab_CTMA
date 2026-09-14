@@ -14,24 +14,28 @@ class EquipoViewModel : ViewModel() {
                 id = 1,
                 nombre = "Laptop Lenovo",
                 tipo = "Computador",
+                codigo = "EQ-001",
                 disponible = true
             ),
             Equipo(
                 id = 2,
                 nombre = "Proyector Epson",
                 tipo = "Proyector",
+                codigo = "EQ-002",
                 disponible = true
             ),
             Equipo(
                 id = 3,
                 nombre = "Cámara Sony",
                 tipo = "Cámara",
+                codigo = "EQ-003",
                 disponible = true
             ),
             Equipo(
                 id = 4,
                 nombre = "Tablet Samsung",
                 tipo = "Tablet",
+                codigo = "EQ-004",
                 disponible = true
             )
         )
@@ -40,34 +44,164 @@ class EquipoViewModel : ViewModel() {
     private val _incidentes =
         MutableStateFlow<List<Incidente>>(emptyList())
 
-    val equipos: StateFlow<List<Equipo>> = _equipos
+    val equipos: StateFlow<List<Equipo>> =
+        _equipos
 
-    val incidentes: StateFlow<List<Incidente>> = _incidentes
+    val incidentes: StateFlow<List<Incidente>> =
+        _incidentes
+
+    // =====================================================
+    // AGREGAR EQUIPO
+    // =====================================================
+    fun agregarEquipo(
+        nombre: String,
+        tipo: String,
+        codigo: String
+    ): Boolean {
+
+        if (
+            nombre.isBlank() ||
+            tipo.isBlank() ||
+            codigo.isBlank()
+        ) {
+            return false
+        }
+
+        val codigoExiste =
+            _equipos.value.any {
+                it.codigo.equals(
+                    codigo.trim(),
+                    ignoreCase = true
+                )
+            }
+
+        if (codigoExiste) {
+            return false
+        }
+
+        val nuevoId =
+            (_equipos.value.maxOfOrNull {
+                it.id
+            } ?: 0) + 1
+
+        val nuevoEquipo = Equipo(
+            id = nuevoId,
+            nombre = nombre.trim(),
+            tipo = tipo.trim(),
+            codigo = codigo.trim(),
+            disponible = true,
+            estado = "Disponible"
+        )
+
+        _equipos.value =
+            _equipos.value + nuevoEquipo
+
+        return true
+    }
+
+    // =====================================================
+    // EDITAR EQUIPO
+    // =====================================================
+
+    fun actualizarEquipo(
+        id: Int,
+        nombre: String,
+        tipo: String,
+        codigo: String,
+        estado: String,
+        disponible: Boolean
+    ): Boolean {
+
+        if (
+            nombre.isBlank() ||
+            tipo.isBlank() ||
+            codigo.isBlank()
+        ) {
+            return false
+        }
+
+        val codigoExiste =
+            _equipos.value.any {
+                it.id != id &&
+                        it.codigo.equals(
+                            codigo.trim(),
+                            ignoreCase = true
+                        )
+            }
+
+        if (codigoExiste) {
+            return false
+        }
+
+        _equipos.value =
+            _equipos.value.map { equipo ->
+
+                if (equipo.id == id) {
+
+                    equipo.copy(
+                        nombre = nombre.trim(),
+                        tipo = tipo.trim(),
+                        codigo = codigo.trim(),
+                        estado = estado,
+                        disponible = disponible
+                    )
+
+                } else {
+
+                    equipo
+                }
+            }
+
+        return true
+    }
+
+    // =====================================================
+    // ELIMINAR EQUIPO
+    // =====================================================
+
+    fun eliminarEquipo(
+        id: Int
+    ) {
+
+        _equipos.value =
+            _equipos.value.filter {
+                it.id != id
+            }
+    }
+
+    // =====================================================
+    // CAMBIAR DISPONIBILIDAD
+    // =====================================================
 
     fun actualizarDisponibilidad(
         idEquipo: Int,
         disponible: Boolean
     ) {
 
-        _equipos.value = _equipos.value.map { equipo ->
+        _equipos.value =
+            _equipos.value.map { equipo ->
 
-            if (equipo.id == idEquipo) {
+                if (equipo.id == idEquipo) {
 
-                equipo.copy(
-                    disponible = disponible,
-                    estado = if (disponible) {
-                        "Disponible"
-                    } else {
-                        "No disponible"
-                    }
-                )
+                    equipo.copy(
+                        disponible = disponible,
+                        estado = if (disponible) {
+                            "Disponible"
+                        } else {
+                            "No disponible"
+                        }
+                    )
 
-            } else {
+                } else {
 
-                equipo
+                    equipo
+                }
             }
-        }
     }
+
+    // =====================================================
+    // REPORTAR INCIDENTE
+    // =====================================================
 
     fun reportarIncidente(
         equipoId: Int,
@@ -78,17 +212,22 @@ class EquipoViewModel : ViewModel() {
             it.id == equipoId
         }
 
-        if (equipo != null) {
+        if (
+            equipo != null &&
+            observacion.isNotBlank()
+        ) {
 
             val incidente = Incidente(
                 id = System.currentTimeMillis().toInt(),
                 equipoId = equipo.id,
                 equipoNombre = equipo.nombre,
-                observacion = observacion,
+                observacion = observacion.trim(),
                 fecha = java.text.SimpleDateFormat(
                     "yyyy-MM-dd HH:mm",
                     java.util.Locale.getDefault()
-                ).format(java.util.Date())
+                ).format(
+                    java.util.Date()
+                )
             )
 
             _incidentes.value =
@@ -111,6 +250,10 @@ class EquipoViewModel : ViewModel() {
                 }
         }
     }
+
+    // =====================================================
+    // FINALIZAR MANTENIMIENTO
+    // =====================================================
 
     fun finalizarMantenimiento(
         equipoId: Int

@@ -4,6 +4,7 @@ data class Equipo(
     val id: Int,
     val nombre: String,
     val tipo: String,
+    val codigo: String = "",
     val disponible: Boolean,
     val estado: String = "Disponible"
 )
