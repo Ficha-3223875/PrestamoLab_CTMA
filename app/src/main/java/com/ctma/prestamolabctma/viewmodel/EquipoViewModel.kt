@@ -1,14 +1,36 @@
 package com.ctma.prestamolabctma.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.ctma.prestamolabctma.data.local.AppDatabase
+import com.ctma.prestamolabctma.data.repository.EquipoRepository
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.model.Incidente
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class EquipoViewModel : ViewModel() {
+class EquipoViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
-    private val _equipos = MutableStateFlow(
+    private val equipoRepository: EquipoRepository
+
+    private val _equipos =
+        MutableStateFlow<List<Equipo>>(emptyList())
+
+    private val _incidentes =
+        MutableStateFlow<List<Incidente>>(emptyList())
+
+    val equipos: StateFlow<List<Equipo>> =
+        _equipos
+
+    val incidentes: StateFlow<List<Incidente>> =
+        _incidentes
+
+    private val equiposIniciales =
         listOf(
             Equipo(
                 id = 1,
@@ -39,20 +61,53 @@ class EquipoViewModel : ViewModel() {
                 disponible = true
             )
         )
-    )
 
-    private val _incidentes =
-        MutableStateFlow<List<Incidente>>(emptyList())
+    init {
 
-    val equipos: StateFlow<List<Equipo>> =
-        _equipos
+        val database =
+            AppDatabase.getDatabase(application)
 
-    val incidentes: StateFlow<List<Incidente>> =
-        _incidentes
+        equipoRepository =
+            EquipoRepository(
+                database.equipoDao()
+            )
+
+        cargarEquipos()
+    }
+
+    // =====================================================
+    // CARGAR EQUIPOS DESDE ROOM
+    // =====================================================
+
+    private fun cargarEquipos() {
+
+        viewModelScope.launch {
+
+            val equiposGuardados =
+                equipoRepository
+                    .obtenerEquipos()
+                    .first()
+
+            if (equiposGuardados.isEmpty()) {
+
+                equipoRepository.guardarEquipos(
+                    equiposIniciales
+                )
+            }
+
+            equipoRepository
+                .obtenerEquipos()
+                .collect { equipos ->
+
+                    _equipos.value = equipos
+                }
+        }
+    }
 
     // =====================================================
     // AGREGAR EQUIPO
     // =====================================================
+
     fun agregarEquipo(
         nombre: String,
         tipo: String,
@@ -67,10 +122,14 @@ class EquipoViewModel : ViewModel() {
             return false
         }
 
+        val codigoLimpio =
+            codigo.trim()
+
         val codigoExiste =
             _equipos.value.any {
+
                 it.codigo.equals(
-                    codigo.trim(),
+                    codigoLimpio,
                     ignoreCase = true
                 )
             }
@@ -84,17 +143,22 @@ class EquipoViewModel : ViewModel() {
                 it.id
             } ?: 0) + 1
 
-        val nuevoEquipo = Equipo(
-            id = nuevoId,
-            nombre = nombre.trim(),
-            tipo = tipo.trim(),
-            codigo = codigo.trim(),
-            disponible = true,
-            estado = "Disponible"
-        )
+        val nuevoEquipo =
+            Equipo(
+                id = nuevoId,
+                nombre = nombre.trim(),
+                tipo = tipo.trim(),
+                codigo = codigoLimpio,
+                disponible = true,
+                estado = "Disponible"
+            )
 
-        _equipos.value =
-            _equipos.value + nuevoEquipo
+        viewModelScope.launch {
+
+            equipoRepository.guardarEquipo(
+                nuevoEquipo
+            )
+        }
 
         return true
     }
@@ -120,11 +184,15 @@ class EquipoViewModel : ViewModel() {
             return false
         }
 
+        val codigoLimpio =
+            codigo.trim()
+
         val codigoExiste =
             _equipos.value.any {
+
                 it.id != id &&
                         it.codigo.equals(
-                            codigo.trim(),
+                            codigoLimpio,
                             ignoreCase = true
                         )
             }
@@ -133,24 +201,30 @@ class EquipoViewModel : ViewModel() {
             return false
         }
 
-        _equipos.value =
-            _equipos.value.map { equipo ->
-
-                if (equipo.id == id) {
-
-                    equipo.copy(
-                        nombre = nombre.trim(),
-                        tipo = tipo.trim(),
-                        codigo = codigo.trim(),
-                        estado = estado,
-                        disponible = disponible
-                    )
-
-                } else {
-
-                    equipo
-                }
+        val equipo =
+            _equipos.value.find {
+                it.id == id
             }
+
+        if (equipo == null) {
+            return false
+        }
+
+        val equipoActualizado =
+            equipo.copy(
+                nombre = nombre.trim(),
+                tipo = tipo.trim(),
+                codigo = codigoLimpio,
+                estado = estado,
+                disponible = disponible
+            )
+
+        viewModelScope.launch {
+
+            equipoRepository.actualizarEquipo(
+                equipoActualizado
+            )
+        }
 
         return true
     }
@@ -163,10 +237,21 @@ class EquipoViewModel : ViewModel() {
         id: Int
     ) {
 
-        _equipos.value =
-            _equipos.value.filter {
-                it.id != id
+        val equipo =
+            _equipos.value.find {
+                it.id == id
             }
+
+        if (equipo == null) {
+            return
+        }
+
+        viewModelScope.launch {
+
+            equipoRepository.eliminarEquipo(
+                equipo
+            )
+        }
     }
 
     // =====================================================
@@ -178,25 +263,31 @@ class EquipoViewModel : ViewModel() {
         disponible: Boolean
     ) {
 
-        _equipos.value =
-            _equipos.value.map { equipo ->
-
-                if (equipo.id == idEquipo) {
-
-                    equipo.copy(
-                        disponible = disponible,
-                        estado = if (disponible) {
-                            "Disponible"
-                        } else {
-                            "No disponible"
-                        }
-                    )
-
-                } else {
-
-                    equipo
-                }
+        val equipo =
+            _equipos.value.find {
+                it.id == idEquipo
             }
+
+        if (equipo == null) {
+            return
+        }
+
+        val equipoActualizado =
+            equipo.copy(
+                disponible = disponible,
+                estado = if (disponible) {
+                    "Disponible"
+                } else {
+                    "No disponible"
+                }
+            )
+
+        viewModelScope.launch {
+
+            equipoRepository.actualizarEquipo(
+                equipoActualizado
+            )
+        }
     }
 
     // =====================================================
@@ -208,46 +299,46 @@ class EquipoViewModel : ViewModel() {
         observacion: String
     ) {
 
-        val equipo = _equipos.value.find {
-            it.id == equipoId
-        }
+        val equipo =
+            _equipos.value.find {
+                it.id == equipoId
+            }
 
         if (
             equipo != null &&
             observacion.isNotBlank()
         ) {
 
-            val incidente = Incidente(
-                id = System.currentTimeMillis().toInt(),
-                equipoId = equipo.id,
-                equipoNombre = equipo.nombre,
-                observacion = observacion.trim(),
-                fecha = java.text.SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm",
-                    java.util.Locale.getDefault()
-                ).format(
-                    java.util.Date()
+            val incidente =
+                Incidente(
+                    id = System.currentTimeMillis().toInt(),
+                    equipoId = equipo.id,
+                    equipoNombre = equipo.nombre,
+                    observacion = observacion.trim(),
+                    fecha =
+                        java.text.SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm",
+                            java.util.Locale.getDefault()
+                        ).format(
+                            java.util.Date()
+                        )
                 )
-            )
 
             _incidentes.value =
                 _incidentes.value + incidente
 
-            _equipos.value =
-                _equipos.value.map {
+            val equipoActualizado =
+                equipo.copy(
+                    disponible = false,
+                    estado = "En Mantenimiento"
+                )
 
-                    if (it.id == equipoId) {
+            viewModelScope.launch {
 
-                        it.copy(
-                            disponible = false,
-                            estado = "En Mantenimiento"
-                        )
-
-                    } else {
-
-                        it
-                    }
-                }
+                equipoRepository.actualizarEquipo(
+                    equipoActualizado
+                )
+            }
         }
     }
 
@@ -259,20 +350,26 @@ class EquipoViewModel : ViewModel() {
         equipoId: Int
     ) {
 
-        _equipos.value =
-            _equipos.value.map {
-
-                if (it.id == equipoId) {
-
-                    it.copy(
-                        disponible = true,
-                        estado = "Disponible"
-                    )
-
-                } else {
-
-                    it
-                }
+        val equipo =
+            _equipos.value.find {
+                it.id == equipoId
             }
+
+        if (equipo == null) {
+            return
+        }
+
+        val equipoActualizado =
+            equipo.copy(
+                disponible = true,
+                estado = "Disponible"
+            )
+
+        viewModelScope.launch {
+
+            equipoRepository.actualizarEquipo(
+                equipoActualizado
+            )
+        }
     }
 }
