@@ -1,19 +1,28 @@
 package com.ctma.prestamolabctma.navigation
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
 import com.ctma.prestamolabctma.data.api.RetrofitInstance
 import com.ctma.prestamolabctma.data.repository.UsuarioRepository
+import com.ctma.prestamolabctma.data.session.SessionManager
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.notification.NotificationHelper
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
@@ -30,6 +39,10 @@ import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
+import com.ctma.prestamolabctma.viewmodel.SolicitudViewModelFactory
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AppNavigation(
@@ -41,8 +54,16 @@ fun AppNavigation(
 
     val context = LocalContext.current
 
+    val sessionManager = remember {
+        SessionManager(context)
+    }
+
     // ViewModel de solicitudes
-    val solicitudViewModel: SolicitudViewModel = viewModel()
+    val solicitudViewModel: SolicitudViewModel = viewModel(
+        factory = SolicitudViewModelFactory(
+            sessionManager
+        )
+    )
 
     // ViewModel de equipos
     val equipoViewModel: EquipoViewModel = viewModel()
@@ -106,6 +127,7 @@ fun AppNavigation(
         composable("registro") {
 
             RegistroScreen(
+
                 onRegistroExitoso = { usuario ->
 
                     registroViewModel.registrarUsuario(
@@ -187,25 +209,100 @@ fun AppNavigation(
 
         composable("nueva_solicitud") {
 
-            equipoSeleccionado?.let { equipo ->
+            val estaSancionado =
+                sessionManager.estaSancionado()
 
-                SolicitudScreen(
-                    equipo = equipo,
+            val fechaDesbloqueo =
+                sessionManager.obtenerFechaDesbloqueo()
 
-                    onSolicitudEnviada = { solicitud ->
+            if (estaSancionado) {
 
-                        solicitudViewModel.agregarSolicitud(
-                            solicitud
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp)
+                ) {
+
+                    Text(
+                        text = "Solicitud bloqueada",
+                        style = MaterialTheme
+                            .typography
+                            .headlineMedium
+                    )
+
+                    Text(
+                        text = "No puedes solicitar equipos porque tienes una sanción activa.",
+                        modifier = Modifier.padding(
+                            top = 16.dp
                         )
+                    )
 
-                        navController.navigate("solicitudes") {
+                    val fecha = SimpleDateFormat(
+                        "dd/MM/yyyy HH:mm",
+                        Locale.US
+                    ).format(
+                        Date(fechaDesbloqueo)
+                    )
 
-                            popUpTo("nueva_solicitud") {
-                                inclusive = true
+                    Text(
+                        text = "Podrás volver a solicitar equipos después de:",
+                        modifier = Modifier.padding(
+                            top = 16.dp
+                        )
+                    )
+
+                    Text(
+                        text = fecha,
+                        style = MaterialTheme
+                            .typography
+                            .titleMedium,
+                        modifier = Modifier.padding(
+                            top = 8.dp
+                        )
+                    )
+
+                    Button(
+                        onClick = {
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp)
+                    ) {
+
+                        Text(
+                            text = "Volver"
+                        )
+                    }
+                }
+
+            } else {
+
+                equipoSeleccionado?.let { equipo ->
+
+                    SolicitudScreen(
+                        equipo = equipo,
+
+                        onSolicitudEnviada = { solicitud ->
+
+                            solicitudViewModel
+                                .agregarSolicitud(
+                                    solicitud
+                                )
+
+                            navController.navigate(
+                                "solicitudes"
+                            ) {
+
+                                popUpTo(
+                                    "nueva_solicitud"
+                                ) {
+                                    inclusive = true
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
 
@@ -218,7 +315,9 @@ fun AppNavigation(
             EquiposScreen(
                 equipos = equipos,
 
-                onReportarIncidente = { equipo, observacion ->
+                onReportarIncidente = {
+                        equipo,
+                        observacion ->
 
                     equipoViewModel.reportarIncidente(
                         equipoId = equipo.id,
@@ -228,9 +327,10 @@ fun AppNavigation(
 
                 onFinalizarMantenimiento = { equipo ->
 
-                    equipoViewModel.finalizarMantenimiento(
-                        equipoId = equipo.id
-                    )
+                    equipoViewModel
+                        .finalizarMantenimiento(
+                            equipoId = equipo.id
+                        )
                 }
             )
         }
@@ -254,10 +354,11 @@ fun AppNavigation(
                         solicitud.id
                     )
 
-                    equipoViewModel.actualizarDisponibilidad(
-                        idEquipo = solicitud.equipo.id,
-                        disponible = true
-                    )
+                    equipoViewModel
+                        .actualizarDisponibilidad(
+                            idEquipo = solicitud.equipo.id,
+                            disponible = true
+                        )
                 }
             )
         }
@@ -276,16 +377,19 @@ fun AppNavigation(
                 },
 
                 // Aprobar o rechazar solicitud
-                onCambiarEstado = { solicitudId, nuevoEstado ->
+                onCambiarEstado = {
+                        solicitudId,
+                        nuevoEstado ->
 
                     solicitudViewModel.cambiarEstado(
                         solicitudId = solicitudId,
                         nuevoEstado = nuevoEstado
                     )
 
-                    val solicitud = solicitudes.find {
-                        it.id == solicitudId
-                    }
+                    val solicitud =
+                        solicitudes.find {
+                            it.id == solicitudId
+                        }
 
                     solicitud?.let {
 
@@ -300,24 +404,31 @@ fun AppNavigation(
                             )
                         ) {
 
-                            equipoViewModel.actualizarDisponibilidad(
-                                idEquipo = it.equipo.id,
-                                disponible = false
-                            )
+                            equipoViewModel
+                                .actualizarDisponibilidad(
+                                    idEquipo = it.equipo.id,
+                                    disponible = false
+                                )
 
-                            NotificationHelper.programarRecordatorio(
-                                context = context,
-                                fechaDevolucion = it.fechaDevolucion,
-                                equipo = it.equipo.nombre,
-                                solicitudId = it.id
-                            )
+                            NotificationHelper
+                                .programarRecordatorio(
+                                    context = context,
+                                    fechaDevolucion =
+                                        it.fechaDevolucion,
+                                    equipo =
+                                        it.equipo.nombre,
+                                    solicitudId = it.id
+                                )
 
-                            NotificationHelper.mostrarNotificacion(
-                                context = context,
-                                titulo = "Solicitud aprobada",
-                                mensaje = "Tu solicitud para ${it.equipo.nombre} fue aprobada.",
-                                id = solicitudId
-                            )
+                            NotificationHelper
+                                .mostrarNotificacion(
+                                    context = context,
+                                    titulo =
+                                        "Solicitud aprobada",
+                                    mensaje =
+                                        "Tu solicitud para ${it.equipo.nombre} fue aprobada.",
+                                    id = solicitudId
+                                )
                         }
 
                         // -----------------------------------------
@@ -331,12 +442,15 @@ fun AppNavigation(
                             )
                         ) {
 
-                            NotificationHelper.mostrarNotificacion(
-                                context = context,
-                                titulo = "Solicitud rechazada",
-                                mensaje = "Tu solicitud para ${it.equipo.nombre} fue rechazada.",
-                                id = solicitudId
-                            )
+                            NotificationHelper
+                                .mostrarNotificacion(
+                                    context = context,
+                                    titulo =
+                                        "Solicitud rechazada",
+                                    mensaje =
+                                        "Tu solicitud para ${it.equipo.nombre} fue rechazada.",
+                                    id = solicitudId
+                                )
                         }
                     }
                 },
@@ -347,28 +461,35 @@ fun AppNavigation(
 
                 onCancelarSolicitud = { solicitudId ->
 
-                    solicitudViewModel.cancelarSolicitud(
-                        solicitudId
-                    )
+                    solicitudViewModel
+                        .cancelarSolicitud(
+                            solicitudId
+                        )
                 },
 
                 // ---------------------------------------------
                 // RECHAZAR CON MOTIVO
                 // ---------------------------------------------
 
-                onRechazarSolicitud = { solicitudId, motivo ->
+                onRechazarSolicitud = {
+                        solicitudId,
+                        motivo ->
 
-                    solicitudViewModel.rechazarSolicitud(
-                        solicitudId = solicitudId,
-                        motivoRechazo = motivo
-                    )
+                    solicitudViewModel
+                        .rechazarSolicitud(
+                            solicitudId = solicitudId,
+                            motivoRechazo = motivo
+                        )
 
-                    NotificationHelper.mostrarNotificacion(
-                        context = context,
-                        titulo = "Solicitud rechazada",
-                        mensaje = "Tu solicitud fue rechazada. Motivo: $motivo",
-                        id = solicitudId
-                    )
+                    NotificationHelper
+                        .mostrarNotificacion(
+                            context = context,
+                            titulo =
+                                "Solicitud rechazada",
+                            mensaje =
+                                "Tu solicitud fue rechazada. Motivo: $motivo",
+                            id = solicitudId
+                        )
                 }
             )
         }

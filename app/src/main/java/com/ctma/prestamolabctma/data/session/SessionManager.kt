@@ -46,6 +46,50 @@ class SessionManager(context: Context) {
         ) ?: ""
     }
 
+    fun guardarSancion(
+        fechaDesbloqueo: Long
+    ) {
+
+        preferencias.edit()
+            .putLong(
+                "fecha_desbloqueo",
+                fechaDesbloqueo
+            )
+            .apply()
+    }
+
+    fun estaSancionado(): Boolean {
+
+        val fechaDesbloqueo =
+            preferencias.getLong(
+                "fecha_desbloqueo",
+                0L
+            )
+
+        if (fechaDesbloqueo == 0L) {
+            return false
+        }
+
+        if (System.currentTimeMillis() >= fechaDesbloqueo) {
+
+            preferencias.edit()
+                .remove("fecha_desbloqueo")
+                .apply()
+
+            return false
+        }
+
+        return true
+    }
+
+    fun obtenerFechaDesbloqueo(): Long {
+
+        return preferencias.getLong(
+            "fecha_desbloqueo",
+            0L
+        )
+    }
+
     fun cerrarSesion() {
 
         preferencias.edit()
