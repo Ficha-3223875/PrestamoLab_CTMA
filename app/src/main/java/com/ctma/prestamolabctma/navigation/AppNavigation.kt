@@ -216,7 +216,22 @@ fun AppNavigation(
         composable("equipos") {
 
             EquiposScreen(
-                equipos = equipos
+                equipos = equipos,
+
+                onReportarIncidente = { equipo, observacion ->
+
+                    equipoViewModel.reportarIncidente(
+                        equipoId = equipo.id,
+                        observacion = observacion
+                    )
+                },
+
+                onFinalizarMantenimiento = { equipo ->
+
+                    equipoViewModel.finalizarMantenimiento(
+                        equipoId = equipo.id
+                    )
+                }
             )
         }
 
