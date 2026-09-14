@@ -20,26 +20,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import com.ctma.prestamolabctma.data.api.RetrofitInstance
 import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.notification.NotificationHelper
+
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
 import com.ctma.prestamolabctma.ui.equipo.DetalleEquipoScreen
 import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
 import com.ctma.prestamolabctma.ui.home.HomeScreen
+import com.ctma.prestamolabctma.ui.laboratorio.LaboratoriosScreen
 import com.ctma.prestamolabctma.ui.login.LoginScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.registro.RegistroScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
+
 import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
+import com.ctma.prestamolabctma.viewmodel.LaboratorioViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModelFactory
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,21 +60,48 @@ fun AppNavigation(
 
     val context = LocalContext.current
 
+    // =====================================================
+    // SESIÓN
+    // =====================================================
+
     val sessionManager = remember {
         SessionManager(context)
     }
 
-    // ViewModel de solicitudes
+    // =====================================================
+    // VIEWMODEL DE SOLICITUDES
+    // =====================================================
+
     val solicitudViewModel: SolicitudViewModel = viewModel(
         factory = SolicitudViewModelFactory(
             sessionManager
         )
     )
 
-    // ViewModel de equipos
+    // =====================================================
+    // VIEWMODEL DE EQUIPOS
+    // =====================================================
+
     val equipoViewModel: EquipoViewModel = viewModel()
 
-    // ViewModel de registro
+    val equipos by equipoViewModel
+        .equipos
+        .collectAsStateWithLifecycle()
+
+    // =====================================================
+    // VIEWMODEL DE LABORATORIOS
+    // =====================================================
+
+    val laboratorioViewModel: LaboratorioViewModel = viewModel()
+
+    val laboratorios by laboratorioViewModel
+        .laboratorios
+        .collectAsStateWithLifecycle()
+
+    // =====================================================
+    // VIEWMODEL DE REGISTRO
+    // =====================================================
+
     val registroViewModel: RegistroViewModel = viewModel(
         factory = RegistroViewModelFactory(
             UsuarioRepository(
@@ -77,24 +110,33 @@ fun AppNavigation(
         )
     )
 
-    // Lista de solicitudes
+    // =====================================================
+    // LISTA DE SOLICITUDES
+    // =====================================================
+
     val solicitudes by solicitudViewModel
         .solicitudes
         .collectAsStateWithLifecycle()
 
-    // Lista de equipos
-    val equipos by equipoViewModel
-        .equipos
-        .collectAsStateWithLifecycle()
+    // =====================================================
+    // EQUIPO SELECCIONADO
+    // =====================================================
 
-    // Equipo seleccionado
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
     }
 
+    // =====================================================
+    // NAVEGACIÓN
+    // =====================================================
+
     NavHost(
         navController = navController,
-        startDestination = if (sesionActiva) "home" else "login"
+        startDestination = if (sesionActiva) {
+            "home"
+        } else {
+            "login"
+        }
     ) {
 
         // =====================================================
@@ -107,7 +149,9 @@ fun AppNavigation(
                 loginViewModel = loginViewModel,
 
                 onLoginSuccess = {
+
                     navController.navigate("home") {
+
                         popUpTo("login") {
                             inclusive = true
                         }
@@ -115,6 +159,7 @@ fun AppNavigation(
                 },
 
                 onRegistroClick = {
+
                     navController.navigate("registro")
                 }
             )
@@ -136,6 +181,7 @@ fun AppNavigation(
                 },
 
                 onVolverLogin = {
+
                     navController.popBackStack()
                 }
             )
@@ -150,19 +196,38 @@ fun AppNavigation(
             HomeScreen(
 
                 onCatalogoClick = {
-                    navController.navigate("catalogo")
+
+                    navController.navigate(
+                        "catalogo"
+                    )
                 },
 
                 onEquiposClick = {
-                    navController.navigate("equipos")
+
+                    navController.navigate(
+                        "equipos"
+                    )
                 },
 
                 onPrestamosClick = {
-                    navController.navigate("prestamos")
+
+                    navController.navigate(
+                        "prestamos"
+                    )
                 },
 
                 onSolicitudesClick = {
-                    navController.navigate("solicitudes")
+
+                    navController.navigate(
+                        "solicitudes"
+                    )
+                },
+
+                onLaboratoriosClick = {
+
+                    navController.navigate(
+                        "laboratorios"
+                    )
                 }
             )
         }
@@ -180,7 +245,9 @@ fun AppNavigation(
 
                     equipoSeleccionado = equipo
 
-                    navController.navigate("detalle_equipo")
+                    navController.navigate(
+                        "detalle_equipo"
+                    )
                 }
             )
         }
@@ -197,7 +264,10 @@ fun AppNavigation(
                     equipo = equipo,
 
                     onSolicitarClick = {
-                        navController.navigate("nueva_solicitud")
+
+                        navController.navigate(
+                            "nueva_solicitud"
+                        )
                     }
                 )
             }
@@ -231,7 +301,8 @@ fun AppNavigation(
                     )
 
                     Text(
-                        text = "No puedes solicitar equipos porque tienes una sanción activa.",
+                        text =
+                            "No puedes solicitar equipos porque tienes una sanción activa.",
                         modifier = Modifier.padding(
                             top = 16.dp
                         )
@@ -245,7 +316,8 @@ fun AppNavigation(
                     )
 
                     Text(
-                        text = "Podrás volver a solicitar equipos después de:",
+                        text =
+                            "Podrás volver a solicitar equipos después de:",
                         modifier = Modifier.padding(
                             top = 16.dp
                         )
@@ -263,11 +335,16 @@ fun AppNavigation(
 
                     Button(
                         onClick = {
-                            navController.popBackStack()
+
+                            navController
+                                .popBackStack()
                         },
+
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 24.dp)
+                            .padding(
+                                top = 24.dp
+                            )
                     ) {
 
                         Text(
@@ -336,6 +413,66 @@ fun AppNavigation(
         }
 
         // =====================================================
+        // LABORATORIOS
+        // =====================================================
+
+        composable("laboratorios") {
+
+            LaboratoriosScreen(
+                laboratorios = laboratorios,
+
+                onAgregar = { nombre, codigo ->
+
+                    laboratorioViewModel
+                        .agregarLaboratorio(
+                            nombre = nombre,
+                            codigo = codigo
+                        )
+                },
+
+                onEditar = {
+                        id,
+                        nombre,
+                        codigo,
+                        estado ->
+
+                    laboratorioViewModel
+                        .actualizarLaboratorio(
+                            id = id,
+                            nombre = nombre,
+                            codigo = codigo,
+                            estado = estado
+                        )
+                },
+
+                onEliminar = { id ->
+
+                    laboratorioViewModel
+                        .eliminarLaboratorio(
+                            id
+                        )
+                },
+
+                onCambiarEstado = {
+                        id,
+                        estado ->
+
+                    laboratorioViewModel
+                        .cambiarEstado(
+                            id = id,
+                            estado = estado
+                        )
+                },
+
+                onVolver = {
+
+                    navController
+                        .popBackStack()
+                }
+            )
+        }
+
+        // =====================================================
         // MIS PRÉSTAMOS
         // =====================================================
 
@@ -345,14 +482,17 @@ fun AppNavigation(
                 solicitudes = solicitudes,
 
                 onVolverClick = {
-                    navController.popBackStack()
+
+                    navController
+                        .popBackStack()
                 },
 
                 onDevolverClick = { solicitud ->
 
-                    solicitudViewModel.devolverPrestamo(
-                        solicitud.id
-                    )
+                    solicitudViewModel
+                        .devolverPrestamo(
+                            solicitud.id
+                        )
 
                     equipoViewModel
                         .actualizarDisponibilidad(
@@ -373,18 +513,24 @@ fun AppNavigation(
                 solicitudes = solicitudes,
 
                 onVolverClick = {
-                    navController.popBackStack()
+
+                    navController
+                        .popBackStack()
                 },
 
-                // Aprobar o rechazar solicitud
+                // =================================================
+                // APROBAR O RECHAZAR SOLICITUD
+                // =================================================
+
                 onCambiarEstado = {
                         solicitudId,
                         nuevoEstado ->
 
-                    solicitudViewModel.cambiarEstado(
-                        solicitudId = solicitudId,
-                        nuevoEstado = nuevoEstado
-                    )
+                    solicitudViewModel
+                        .cambiarEstado(
+                            solicitudId = solicitudId,
+                            nuevoEstado = nuevoEstado
+                        )
 
                     val solicitud =
                         solicitudes.find {
@@ -393,9 +539,9 @@ fun AppNavigation(
 
                     solicitud?.let {
 
-                        // -----------------------------------------
+                        // =========================================
                         // SOLICITUD APROBADA
-                        // -----------------------------------------
+                        // =========================================
 
                         if (
                             nuevoEstado.equals(
@@ -406,7 +552,8 @@ fun AppNavigation(
 
                             equipoViewModel
                                 .actualizarDisponibilidad(
-                                    idEquipo = it.equipo.id,
+                                    idEquipo =
+                                        it.equipo.id,
                                     disponible = false
                                 )
 
@@ -417,7 +564,8 @@ fun AppNavigation(
                                         it.fechaDevolucion,
                                     equipo =
                                         it.equipo.nombre,
-                                    solicitudId = it.id
+                                    solicitudId =
+                                        it.id
                                 )
 
                             NotificationHelper
@@ -431,9 +579,9 @@ fun AppNavigation(
                                 )
                         }
 
-                        // -----------------------------------------
+                        // =========================================
                         // SOLICITUD RECHAZADA
-                        // -----------------------------------------
+                        // =========================================
 
                         if (
                             nuevoEstado.equals(
@@ -455,11 +603,12 @@ fun AppNavigation(
                     }
                 },
 
-                // ---------------------------------------------
+                // =================================================
                 // CANCELAR SOLICITUD
-                // ---------------------------------------------
+                // =================================================
 
-                onCancelarSolicitud = { solicitudId ->
+                onCancelarSolicitud = {
+                        solicitudId ->
 
                     solicitudViewModel
                         .cancelarSolicitud(
@@ -467,9 +616,9 @@ fun AppNavigation(
                         )
                 },
 
-                // ---------------------------------------------
+                // =================================================
                 // RECHAZAR CON MOTIVO
-                // ---------------------------------------------
+                // =================================================
 
                 onRechazarSolicitud = {
                         solicitudId,
