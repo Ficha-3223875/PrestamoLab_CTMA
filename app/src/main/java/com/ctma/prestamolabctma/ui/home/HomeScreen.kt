@@ -18,7 +18,8 @@ fun HomeScreen(
     onEquiposClick: () -> Unit,
     onPrestamosClick: () -> Unit,
     onSolicitudesClick: () -> Unit,
-    onLaboratoriosClick: () -> Unit
+    onLaboratoriosClick: () -> Unit,
+    onMetricasClick: () -> Unit
 ) {
 
     Column(
@@ -71,6 +72,13 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Laboratorios")
+        }
+
+        Button(
+            onClick = onMetricasClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Métricas y reportes")
         }
     }
 }

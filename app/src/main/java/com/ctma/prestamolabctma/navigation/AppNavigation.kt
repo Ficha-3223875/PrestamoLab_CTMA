@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,7 @@ import com.ctma.prestamolabctma.ui.equipo.EquiposScreen
 import com.ctma.prestamolabctma.ui.home.HomeScreen
 import com.ctma.prestamolabctma.ui.laboratorio.LaboratoriosScreen
 import com.ctma.prestamolabctma.ui.login.LoginScreen
+import com.ctma.prestamolabctma.ui.metricas.MetricasScreen
 import com.ctma.prestamolabctma.ui.misprestamos.MisPrestamosScreen
 import com.ctma.prestamolabctma.ui.registro.RegistroScreen
 import com.ctma.prestamolabctma.ui.solicitud.SolicitudScreen
@@ -47,6 +49,7 @@ import com.ctma.prestamolabctma.ui.solicitud.SolicitudesScreen
 import com.ctma.prestamolabctma.viewmodel.EquipoViewModel
 import com.ctma.prestamolabctma.viewmodel.LaboratorioViewModel
 import com.ctma.prestamolabctma.viewmodel.LoginViewModel
+import com.ctma.prestamolabctma.viewmodel.MetricasViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
@@ -106,6 +109,14 @@ fun AppNavigation(
 
 
     // =====================================================
+    // VIEWMODEL DE MÉTRICAS
+    // =====================================================
+
+    val metricasViewModel: MetricasViewModel =
+        viewModel()
+
+
+    // =====================================================
     // VIEWMODEL DE EQUIPOS
     // =====================================================
 
@@ -149,6 +160,22 @@ fun AppNavigation(
 
     val solicitudes by solicitudViewModel
         .solicitudes
+        .collectAsStateWithLifecycle()
+
+
+    // =====================================================
+    // ACTUALIZAR MÉTRICAS
+    // =====================================================
+
+    LaunchedEffect(solicitudes) {
+
+        metricasViewModel.calcularMetricas(
+            solicitudes
+        )
+    }
+
+    val metricas by metricasViewModel
+        .metricas
         .collectAsStateWithLifecycle()
 
 
@@ -269,6 +296,13 @@ fun AppNavigation(
 
                     navController.navigate(
                         "laboratorios"
+                    )
+                },
+
+                onMetricasClick = {
+
+                    navController.navigate(
+                        "metricas"
                     )
                 }
             )
@@ -760,6 +794,23 @@ fun AppNavigation(
                                 "Tu solicitud fue rechazada. Motivo: $motivo",
                             id = solicitudId
                         )
+                }
+            )
+        }
+
+
+        // =====================================================
+        // MÉTRICAS Y REPORTES — HU-15
+        // =====================================================
+
+        composable("metricas") {
+
+            MetricasScreen(
+                metricas = metricas,
+
+                onVolver = {
+
+                    navController.popBackStack()
                 }
             )
         }
