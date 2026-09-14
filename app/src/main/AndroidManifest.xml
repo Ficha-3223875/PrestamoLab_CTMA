@@ -33,6 +33,7 @@
         <activity android:name=".SolicitudActivity" android:exported="false" />
         <activity android:name=".ComprobanteActivity" android:exported="false" />
         <activity android:name=".HistorialActivity" android:exported="false" />
+        <activity android:name=".AdminPendientesActivity" android:exported="false" />
 
         <!-- HU-07: Receiver para recordatorio de los 30 minutos antes de entrega -->
         <receiver
