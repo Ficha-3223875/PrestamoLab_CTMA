@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -99,6 +101,10 @@ fun PrestamoCard(
     onDevolverClick: (Solicitud) -> Unit
 ) {
 
+    var mostrarDialogoDevolucion by remember {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -133,7 +139,6 @@ fun PrestamoCard(
                 estado = solicitud.estado
             )
 
-            // Contador solamente cuando el equipo está en préstamo
             if (solicitud.estado.equals("En Préstamo", ignoreCase = true)) {
 
                 ContadorDevolucion(
@@ -142,7 +147,7 @@ fun PrestamoCard(
 
                 Button(
                     onClick = {
-                        onDevolverClick(solicitud)
+                        mostrarDialogoDevolucion = true
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -152,6 +157,58 @@ fun PrestamoCard(
                 }
             }
         }
+    }
+
+    if (mostrarDialogoDevolucion) {
+
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoDevolucion = false
+            },
+
+            title = {
+                Text(
+                    text = "Confirmar devolución"
+                )
+            },
+
+            text = {
+                Text(
+                    text = "¿Confirmas que el equipo " +
+                            "${solicitud.equipo.nombre} " +
+                            "fue recibido y será marcado como devuelto?"
+                )
+            },
+
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        onDevolverClick(solicitud)
+
+                        mostrarDialogoDevolucion = false
+                    }
+                ) {
+                    Text(
+                        text = "Confirmar"
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        mostrarDialogoDevolucion = false
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar"
+                    )
+                }
+            }
+        )
     }
 }
 
