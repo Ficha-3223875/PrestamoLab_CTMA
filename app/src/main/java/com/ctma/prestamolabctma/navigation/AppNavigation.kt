@@ -1,5 +1,7 @@
 package com.ctma.prestamolabctma.navigation
 
+import android.app.Application
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +17,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,7 +28,9 @@ import androidx.navigation.compose.rememberNavController
 import com.ctma.prestamolabctma.data.api.RetrofitInstance
 import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
+
 import com.ctma.prestamolabctma.model.Equipo
+
 import com.ctma.prestamolabctma.notification.NotificationHelper
 
 import com.ctma.prestamolabctma.ui.catalogo.CatalogoScreen
@@ -50,65 +56,83 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel,
     sesionActiva: Boolean
 ) {
 
-    val navController = rememberNavController()
+    val navController =
+        rememberNavController()
 
-    val context = LocalContext.current
+    val context =
+        LocalContext.current
+
+    val application =
+        context.applicationContext as Application
+
 
     // =====================================================
     // SESIÓN
     // =====================================================
 
-    val sessionManager = remember {
-        SessionManager(context)
-    }
+    val sessionManager =
+        remember {
+            SessionManager(context)
+        }
+
 
     // =====================================================
     // VIEWMODEL DE SOLICITUDES
     // =====================================================
 
-    val solicitudViewModel: SolicitudViewModel = viewModel(
-        factory = SolicitudViewModelFactory(
-            sessionManager
+    val solicitudViewModel: SolicitudViewModel =
+        viewModel(
+            factory = SolicitudViewModelFactory(
+                application = application,
+                sessionManager = sessionManager
+            )
         )
-    )
+
 
     // =====================================================
     // VIEWMODEL DE EQUIPOS
     // =====================================================
 
-    val equipoViewModel: EquipoViewModel = viewModel()
+    val equipoViewModel: EquipoViewModel =
+        viewModel()
 
     val equipos by equipoViewModel
         .equipos
         .collectAsStateWithLifecycle()
 
+
     // =====================================================
     // VIEWMODEL DE LABORATORIOS
     // =====================================================
 
-    val laboratorioViewModel: LaboratorioViewModel = viewModel()
+    val laboratorioViewModel: LaboratorioViewModel =
+        viewModel()
 
     val laboratorios by laboratorioViewModel
         .laboratorios
         .collectAsStateWithLifecycle()
 
+
     // =====================================================
     // VIEWMODEL DE REGISTRO
     // =====================================================
 
-    val registroViewModel: RegistroViewModel = viewModel(
-        factory = RegistroViewModelFactory(
-            UsuarioRepository(
-                RetrofitInstance.api
+    val registroViewModel: RegistroViewModel =
+        viewModel(
+            factory = RegistroViewModelFactory(
+                UsuarioRepository(
+                    RetrofitInstance.api
+                )
             )
         )
-    )
+
 
     // =====================================================
     // LISTA DE SOLICITUDES
@@ -118,6 +142,7 @@ fun AppNavigation(
         .solicitudes
         .collectAsStateWithLifecycle()
 
+
     // =====================================================
     // EQUIPO SELECCIONADO
     // =====================================================
@@ -125,6 +150,7 @@ fun AppNavigation(
     var equipoSeleccionado by remember {
         mutableStateOf<Equipo?>(null)
     }
+
 
     // =====================================================
     // NAVEGACIÓN
@@ -139,6 +165,7 @@ fun AppNavigation(
         }
     ) {
 
+
         // =====================================================
         // LOGIN
         // =====================================================
@@ -150,7 +177,9 @@ fun AppNavigation(
 
                 onLoginSuccess = {
 
-                    navController.navigate("home") {
+                    navController.navigate(
+                        "home"
+                    ) {
 
                         popUpTo("login") {
                             inclusive = true
@@ -160,10 +189,13 @@ fun AppNavigation(
 
                 onRegistroClick = {
 
-                    navController.navigate("registro")
+                    navController.navigate(
+                        "registro"
+                    )
                 }
             )
         }
+
 
         // =====================================================
         // REGISTRO
@@ -186,6 +218,7 @@ fun AppNavigation(
                 }
             )
         }
+
 
         // =====================================================
         // HOME
@@ -232,6 +265,7 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
         // CATÁLOGO
         // =====================================================
@@ -243,7 +277,8 @@ fun AppNavigation(
 
                 onEquipoClick = { equipo ->
 
-                    equipoSeleccionado = equipo
+                    equipoSeleccionado =
+                        equipo
 
                     navController.navigate(
                         "detalle_equipo"
@@ -251,6 +286,7 @@ fun AppNavigation(
                 }
             )
         }
+
 
         // =====================================================
         // DETALLE DEL EQUIPO
@@ -272,6 +308,7 @@ fun AppNavigation(
                 )
             }
         }
+
 
         // =====================================================
         // NUEVA SOLICITUD
@@ -308,12 +345,13 @@ fun AppNavigation(
                         )
                     )
 
-                    val fecha = SimpleDateFormat(
-                        "dd/MM/yyyy HH:mm",
-                        Locale.US
-                    ).format(
-                        Date(fechaDesbloqueo)
-                    )
+                    val fecha =
+                        SimpleDateFormat(
+                            "dd/MM/yyyy HH:mm",
+                            Locale.US
+                        ).format(
+                            Date(fechaDesbloqueo)
+                        )
 
                     Text(
                         text =
@@ -383,9 +421,10 @@ fun AppNavigation(
             }
         }
 
-// =====================================================
-// EQUIPOS
-// =====================================================
+
+        // =====================================================
+        // EQUIPOS
+        // =====================================================
 
         composable("equipos") {
 
@@ -396,7 +435,10 @@ fun AppNavigation(
                 // AGREGAR EQUIPO
                 // ---------------------------------------------
 
-                onAgregar = { nombre, tipo, codigo ->
+                onAgregar = {
+                        nombre,
+                        tipo,
+                        codigo ->
 
                     equipoViewModel.agregarEquipo(
                         nombre = nombre,
@@ -474,6 +516,7 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
         // LABORATORIOS
         // =====================================================
@@ -483,7 +526,9 @@ fun AppNavigation(
             LaboratoriosScreen(
                 laboratorios = laboratorios,
 
-                onAgregar = { nombre, codigo ->
+                onAgregar = {
+                        nombre,
+                        codigo ->
 
                     laboratorioViewModel
                         .agregarLaboratorio(
@@ -534,6 +579,7 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
         // MIS PRÉSTAMOS
         // =====================================================
@@ -564,6 +610,7 @@ fun AppNavigation(
                 }
             )
         }
+
 
         // =====================================================
         // SOLICITUDES
@@ -641,6 +688,7 @@ fun AppNavigation(
                                 )
                         }
 
+
                         // =========================================
                         // SOLICITUD RECHAZADA
                         // =========================================
@@ -665,6 +713,7 @@ fun AppNavigation(
                     }
                 },
 
+
                 // =================================================
                 // CANCELAR SOLICITUD
                 // =================================================
@@ -677,6 +726,7 @@ fun AppNavigation(
                             solicitudId
                         )
                 },
+
 
                 // =================================================
                 // RECHAZAR CON MOTIVO

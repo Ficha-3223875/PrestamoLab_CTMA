@@ -5,18 +5,23 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.ctma.prestamolabctma.data.local.dao.EquipoDao
+import com.ctma.prestamolabctma.data.local.dao.SolicitudDao
 import com.ctma.prestamolabctma.data.local.entity.EquipoEntity
+import com.ctma.prestamolabctma.data.local.entity.SolicitudEntity
 
 @Database(
     entities = [
-        EquipoEntity::class
+        EquipoEntity::class,
+        SolicitudEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun equipoDao(): EquipoDao
+
+    abstract fun solicitudDao(): SolicitudDao
 
     companion object {
 
