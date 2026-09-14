@@ -51,6 +51,7 @@ import com.ctma.prestamolabctma.viewmodel.RegistroViewModel
 import com.ctma.prestamolabctma.viewmodel.RegistroViewModelFactory
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModel
 import com.ctma.prestamolabctma.viewmodel.SolicitudViewModelFactory
+import com.ctma.prestamolabctma.viewmodel.SyncViewModel
 
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -94,6 +95,14 @@ fun AppNavigation(
                 sessionManager = sessionManager
             )
         )
+
+
+    // =====================================================
+    // VIEWMODEL DE SINCRONIZACIÓN
+    // =====================================================
+
+    val syncViewModel: SyncViewModel =
+        viewModel()
 
 
     // =====================================================

@@ -4,12 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ctma.prestamolabctma.data.local.AppDatabase
+import com.ctma.prestamolabctma.data.network.ConnectivityObserver
+import com.ctma.prestamolabctma.data.repository.PendingActionRepository
 import com.ctma.prestamolabctma.data.repository.SolicitudRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
 import com.ctma.prestamolabctma.model.Solicitud
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,7 +21,22 @@ class SolicitudViewModel(
     private val sessionManager: SessionManager
 ) : AndroidViewModel(application) {
 
-    private val solicitudRepository: SolicitudRepository
+    private val database =
+        AppDatabase.getDatabase(application)
+
+    private val solicitudRepository =
+        SolicitudRepository(
+            solicitudDao = database.solicitudDao(),
+            equipoDao = database.equipoDao()
+        )
+
+    private val pendingActionRepository =
+        PendingActionRepository(
+            database.pendingActionDao()
+        )
+
+    private val connectivityObserver =
+        ConnectivityObserver(application)
 
     private val _solicitudes =
         MutableStateFlow<List<Solicitud>>(emptyList())
@@ -29,21 +45,11 @@ class SolicitudViewModel(
         _solicitudes
 
     init {
-
-        val database =
-            AppDatabase.getDatabase(application)
-
-        solicitudRepository =
-            SolicitudRepository(
-                solicitudDao = database.solicitudDao(),
-                equipoDao = database.equipoDao()
-            )
-
         cargarSolicitudes()
     }
 
     // =====================================================
-    // CARGAR SOLICITUDES DESDE ROOM
+    // CARGAR SOLICITUDES
     // =====================================================
 
     private fun cargarSolicitudes() {
@@ -70,9 +76,19 @@ class SolicitudViewModel(
 
         viewModelScope.launch {
 
-            solicitudRepository.guardarSolicitud(
-                solicitud
-            )
+            solicitudRepository
+                .guardarSolicitud(
+                    solicitud
+                )
+
+            if (!connectivityObserver.estaConectado()) {
+
+                pendingActionRepository
+                    .guardarAccion(
+                        tipo = "CREAR_SOLICITUD",
+                        solicitudId = solicitud.id
+                    )
+            }
         }
     }
 
@@ -101,9 +117,19 @@ class SolicitudViewModel(
 
         viewModelScope.launch {
 
-            solicitudRepository.actualizarSolicitud(
-                actualizada
-            )
+            solicitudRepository
+                .actualizarSolicitud(
+                    actualizada
+                )
+
+            if (!connectivityObserver.estaConectado()) {
+
+                pendingActionRepository
+                    .guardarAccion(
+                        tipo = "CAMBIAR_ESTADO",
+                        solicitudId = solicitudId
+                    )
+            }
         }
     }
 
@@ -163,9 +189,19 @@ class SolicitudViewModel(
 
         viewModelScope.launch {
 
-            solicitudRepository.actualizarSolicitud(
-                actualizada
-            )
+            solicitudRepository
+                .actualizarSolicitud(
+                    actualizada
+                )
+
+            if (!connectivityObserver.estaConectado()) {
+
+                pendingActionRepository
+                    .guardarAccion(
+                        tipo = "DEVOLVER_PRESTAMO",
+                        solicitudId = solicitudId
+                    )
+            }
         }
     }
 
@@ -227,9 +263,19 @@ class SolicitudViewModel(
 
         viewModelScope.launch {
 
-            solicitudRepository.actualizarSolicitud(
-                actualizada
-            )
+            solicitudRepository
+                .actualizarSolicitud(
+                    actualizada
+                )
+
+            if (!connectivityObserver.estaConectado()) {
+
+                pendingActionRepository
+                    .guardarAccion(
+                        tipo = "RECHAZAR_SOLICITUD",
+                        solicitudId = solicitudId
+                    )
+            }
         }
     }
 

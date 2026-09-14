@@ -1,7 +1,7 @@
 package com.ctma.prestamolabctma.data.repository
 
-import com.ctma.prestamolabctma.data.local.dao.EquipoDao
-import com.ctma.prestamolabctma.data.local.dao.SolicitudDao
+import com.ctma.prestamolabctma.data.local.entity.dao.EquipoDao
+import com.ctma.prestamolabctma.data.local.entity.dao.SolicitudDao
 import com.ctma.prestamolabctma.data.local.entity.SolicitudEntity
 import com.ctma.prestamolabctma.model.Equipo
 import com.ctma.prestamolabctma.model.Solicitud
@@ -12,10 +12,6 @@ class SolicitudRepository(
     private val solicitudDao: SolicitudDao,
     private val equipoDao: EquipoDao
 ) {
-
-    // =====================================================
-    // OBTENER SOLICITUDES
-    // =====================================================
 
     fun obtenerSolicitudes(): Flow<List<Solicitud>> {
 
@@ -62,16 +58,11 @@ class SolicitudRepository(
                     )
 
                 } else {
-
                     null
                 }
             }
         }
     }
-
-    // =====================================================
-    // GUARDAR SOLICITUD
-    // =====================================================
 
     suspend fun guardarSolicitud(
         solicitud: Solicitud
@@ -81,31 +72,20 @@ class SolicitudRepository(
 
             SolicitudEntity(
                 id = solicitud.id,
-
-                equipoId =
-                    solicitud.equipo.id,
-
+                equipoId = solicitud.equipo.id,
                 fechaPrestamo =
                     solicitud.fechaPrestamo,
-
                 fechaDevolucion =
                     solicitud.fechaDevolucion,
-
                 motivo =
                     solicitud.motivo,
-
                 estado =
                     solicitud.estado,
-
                 motivoRechazo =
                     solicitud.motivoRechazo
             )
         )
     }
-
-    // =====================================================
-    // ACTUALIZAR SOLICITUD
-    // =====================================================
 
     suspend fun actualizarSolicitud(
         solicitud: Solicitud
@@ -115,31 +95,20 @@ class SolicitudRepository(
 
             SolicitudEntity(
                 id = solicitud.id,
-
-                equipoId =
-                    solicitud.equipo.id,
-
+                equipoId = solicitud.equipo.id,
                 fechaPrestamo =
                     solicitud.fechaPrestamo,
-
                 fechaDevolucion =
                     solicitud.fechaDevolucion,
-
                 motivo =
                     solicitud.motivo,
-
                 estado =
                     solicitud.estado,
-
                 motivoRechazo =
                     solicitud.motivoRechazo
             )
         )
     }
-
-    // =====================================================
-    // ELIMINAR SOLICITUD
-    // =====================================================
 
     suspend fun eliminarSolicitud(
         solicitud: Solicitud
@@ -149,22 +118,15 @@ class SolicitudRepository(
 
             SolicitudEntity(
                 id = solicitud.id,
-
-                equipoId =
-                    solicitud.equipo.id,
-
+                equipoId = solicitud.equipo.id,
                 fechaPrestamo =
                     solicitud.fechaPrestamo,
-
                 fechaDevolucion =
                     solicitud.fechaDevolucion,
-
                 motivo =
                     solicitud.motivo,
-
                 estado =
                     solicitud.estado,
-
                 motivoRechazo =
                     solicitud.motivoRechazo
             )

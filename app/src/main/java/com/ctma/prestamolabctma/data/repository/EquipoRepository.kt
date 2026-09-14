@@ -1,6 +1,6 @@
 package com.ctma.prestamolabctma.data.repository
 
-import com.ctma.prestamolabctma.data.local.dao.EquipoDao
+import com.ctma.prestamolabctma.data.local.entity.dao.EquipoDao
 import com.ctma.prestamolabctma.data.local.entity.EquipoEntity
 import com.ctma.prestamolabctma.model.Equipo
 import kotlinx.coroutines.flow.Flow
@@ -30,9 +30,12 @@ class EquipoRepository(
             }
     }
 
-    suspend fun guardarEquipo(equipo: Equipo) {
+    suspend fun guardarEquipo(
+        equipo: Equipo
+    ) {
 
         equipoDao.insertarEquipo(
+
             EquipoEntity(
                 id = equipo.id,
                 nombre = equipo.nombre,
@@ -44,9 +47,12 @@ class EquipoRepository(
         )
     }
 
-    suspend fun guardarEquipos(equipos: List<Equipo>) {
+    suspend fun guardarEquipos(
+        equipos: List<Equipo>
+    ) {
 
         equipoDao.insertarEquipos(
+
             equipos.map { equipo ->
 
                 EquipoEntity(
@@ -61,9 +67,12 @@ class EquipoRepository(
         )
     }
 
-    suspend fun actualizarEquipo(equipo: Equipo) {
+    suspend fun actualizarEquipo(
+        equipo: Equipo
+    ) {
 
         equipoDao.actualizarEquipo(
+
             EquipoEntity(
                 id = equipo.id,
                 nombre = equipo.nombre,
@@ -75,9 +84,12 @@ class EquipoRepository(
         )
     }
 
-    suspend fun eliminarEquipo(equipo: Equipo) {
+    suspend fun eliminarEquipo(
+        equipo: Equipo
+    ) {
 
         equipoDao.eliminarEquipo(
+
             EquipoEntity(
                 id = equipo.id,
                 nombre = equipo.nombre,

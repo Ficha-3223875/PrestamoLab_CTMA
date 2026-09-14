@@ -1,4 +1,4 @@
-package com.ctma.prestamolabctma.data.local.dao
+package com.ctma.prestamolabctma.data.local.entity.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
