@@ -12,26 +12,26 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
 
-    // HU-01 / Registro
     @POST("api/estudiantes/registro")
     fun registrarEstudiante(@Body estudiante: Estudiante): Call<Void>
 
-    // HU-02 / Login
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    // HU-03 / Solicitud de Préstamo (Adaptado para soporte de Call/.enqueue)
     @POST("api/prestamos/solicitar")
     fun solicitarPrestamo(@Body request: SolicitudPrestamoRequest): Call<SolicitudPrestamoResponse>
 
-    // HU-04 y HU-05 / Catálogo
     @GET("api/catalogo")
     suspend fun getCatalogo(): Response<List<CatalogoItem>>
 
-    // HU-04 y HU-05 / Historial
     @GET("api/prestamos/historial")
     suspend fun getHistorial(): Response<List<PrestamoHistorial>>
+
+    // HU-06: Endpoint para cancelar solicitud
+    @POST("api/prestamos/cancelar/{id}")
+    suspend fun cancelarPrestamo(@Path("id") idSolicitud: String): Response<Void>
 }

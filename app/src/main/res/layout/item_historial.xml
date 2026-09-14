@@ -1,56 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="6dp"
-    android:background="@android:color/white"
-    android:elevation="2dp">
+    app:cardCornerRadius="10dp"
+    app:cardElevation="3dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1">
-        <TextView
-            android:id="@+id/tvItemNombre"
-            android:layout_width="0dp"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="Nombre del ítem/espacio" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvIdSolicitud"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SOL-000"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvEstadoSolicitud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pendiente"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/tvEstadoIndicador"
-            android:layout_width="0dp"
+            android:id="@+id/tvItemSolicitado"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:gravity="end"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:text="Estado" />
+            android:layout_marginTop="4dp"
+            android:text="Equipo o Espacio"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvFechasSolicitud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Fecha: 2026-03-01 al 2026-03-05"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnCancelarSolicitud"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:text="Cancelar Solicitud"
+            android:textColor="#C62828"
+            android:textSize="12sp" />
+
     </LinearLayout>
-    <TextView
-        android:id="@+id/tvIdSolicitud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        android:text="Código: SOL-0000" />
-    <TextView
-        android:id="@+id/tvFechaSolicitud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="13sp"
-        android:layout_marginTop="6dp"
-        android:text="Fecha Solicitud: --" />
-    <TextView
-        android:id="@+id/tvFechaLimite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="13sp"
-        android:layout_marginTop="2dp"
-        android:text="Límite devolución: --" />
-</LinearLayout>
+</androidx.cardview.widget.CardView>
