@@ -19,6 +19,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import com.example.prestamolab.model.IncidenciaRequest
 import com.example.prestamolab.model.IncidenciaResponse
+import com.example.prestamolab.model.EstadoUsuarioResponse
+import com.example.prestamolab.model.SancionResponse
 
 interface ApiService {
 
@@ -70,4 +72,11 @@ interface ApiService {
     // HU-11
     @POST("api/admin/prestamos/incidencia")
     suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<IncidenciaResponse>
+
+    // HU-12
+    @GET("api/usuarios/estado/{email}")
+    suspend fun verificarEstadoUsuario(@Path("email") email: String): Response<EstadoUsuarioResponse>
+
+    @POST("api/admin/prestamos/devolver-sancionar")
+    suspend fun registrarDevolucionConSancion(@Body request: DevolucionRequest): Response<SancionResponse>
 }

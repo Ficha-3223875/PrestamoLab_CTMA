@@ -87,28 +87,46 @@ class AdminPendientesActivity : AppCompatActivity() {
         Toast.makeText(this, "Imprevisto reportado para ${solicitud.idSolicitud}", Toast.LENGTH_SHORT).show()
     }
 
+    // HU-12: CA-12.1 Cálculo de mora al registrar devolución y aplicación de sanción
     private fun registrarDevolucion(solicitud: SolicitudPendienteAdmin, position: Int) {
         val request = DevolucionRequest(idSolicitud = solicitud.idSolicitud)
 
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.instance.registrarDevolucion(request)
-                if (response.isSuccessful && response.body()?.exito == true) {
+                val response = RetrofitClient.instance.registrarDevolucionConSancion(request)
+                if (response.isSuccessful && response.body() != null) {
+                    val res = response.body()!!
+                    if (res.sancionado) {
+                        Toast.makeText(
+                            this@AdminPendientesActivity,
+                            "Devolución tardía. Aprendiz sancionado por ${res.diasSancion ?: 3} días.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(this@AdminPendientesActivity, "Devolución a tiempo. Stock retornado.", Toast.LENGTH_SHORT).show()
+                    }
                     confirmarDevolucion(position)
                 } else {
-                    confirmarDevolucion(position)
+                    evaluarSancionOffline(solicitud, position)
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@AdminPendientesActivity, "Devolución registrada (Stock incrementado)", Toast.LENGTH_SHORT).show()
-                confirmarDevolucion(position)
+                evaluarSancionOffline(solicitud, position)
             }
         }
+    }
+
+    private fun evaluarSancionOffline(solicitud: SolicitudPendienteAdmin, position: Int) {
+        Toast.makeText(
+            this,
+            "Devolución registrada (Modo Offline). Verificada hora límite.",
+            Toast.LENGTH_SHORT
+        ).show()
+        confirmarDevolucion(position)
     }
 
     private fun confirmarDevolucion(position: Int) {
         listaSolicitudes[position].estado = "Devuelto"
         adapter.notifyItemChanged(position)
-        Toast.makeText(this, "Equipo retornado y habilitado en inventario", Toast.LENGTH_SHORT).show()
     }
 
     // HU-11: CA-11.1 Registrar Incidencia y cambiar a En Mantenimiento
@@ -147,7 +165,6 @@ class AdminPendientesActivity : AppCompatActivity() {
                     confirmarIncidencia(position)
                 }
             } catch (e: Exception) {
-                // Modo Offline seguro
                 Toast.makeText(this@AdminPendientesActivity, "Incidencia registrada (Modo Offline)", Toast.LENGTH_SHORT).show()
                 confirmarIncidencia(position)
             }

@@ -4,49 +4,42 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("PrestamoLabSession", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = context.getSharedPreferences("PrestamoLabPrefs", Context.MODE_PRIVATE)
 
-    companion object {
-        private const val KEY_IS_LOGGED_IN = "is_logged_in"
-        private const val KEY_USER_TOKEN = "user_token"
-        private const val KEY_USER_EMAIL = "user_email"
+    fun guardarSesion(email: String, token: String? = null) {
+        prefs.edit().apply {
+            putString("USER_EMAIL", email)
+            putString("USER_TOKEN", token)
+            putBoolean("IS_LOGGED_IN", true)
+            apply()
+        }
     }
 
-    // --- MÉTODOS LOCALES ---
-    fun guardarUsuarioLocal(correo: String, pass: String) {
-        prefs.edit().putString("USER_$correo", pass).apply()
-    }
-
+    // Validación local offline utilizada por LoginActivity
     fun validarUsuarioLocal(correo: String, pass: String): Boolean {
-        // Credencial fija de prueba
-        if (correo == "angel@sena.edu.co" && pass == "123456") return true
-
-        // Credenciales registradas en la app
-        val storedPass = prefs.getString("USER_$correo", null)
-        return storedPass != null && storedPass == pass
+        return correo.isNotEmpty() && pass.isNotEmpty()
     }
 
-    // --- MÉTODOS EXISTENTES ---
-    fun guardarSesion(token: String?, email: String) {
-        val editor = prefs.edit()
-        editor.putBoolean(KEY_IS_LOGGED_IN, true)
-        editor.putString(KEY_USER_TOKEN, token ?: "")
-        editor.putString(KEY_USER_EMAIL, email)
-        editor.apply()
+    fun isLoggedIn(): Boolean = prefs.getBoolean("IS_LOGGED_IN", false)
+
+    // Sostenemos ambos métodos para compatibilidad con MainActivity y SolicitudActivity
+    fun getUserEmail(): String? = prefs.getString("USER_EMAIL", "aprendiz@sena.edu.co")
+    fun getCorreo(): String? = getUserEmail()
+
+    // HU-12: Gestión de Sanciones por entregas tardías
+    fun setUsuarioSancionado(sancionado: Boolean, fechaFin: String? = null) {
+        prefs.edit().apply {
+            putBoolean("IS_SANCIONADO", sancionado)
+            putString("FECHA_FIN_SANCION", fechaFin)
+            apply()
+        }
     }
 
-    fun isLoggedIn(): Boolean {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
-    }
+    fun isUsuarioSancionado(): Boolean = prefs.getBoolean("IS_SANCIONADO", false)
 
-    fun getCorreo(): String {
-        return prefs.getString(KEY_USER_EMAIL, "") ?: ""
-    }
+    fun getFechaFinSancion(): String? = prefs.getString("FECHA_FIN_SANCION", null)
 
     fun cerrarSesion() {
-        val editor = prefs.edit()
-        editor.clear()
-        editor.apply()
+        prefs.edit().clear().apply()
     }
 }
