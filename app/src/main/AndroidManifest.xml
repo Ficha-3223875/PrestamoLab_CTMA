@@ -31,6 +31,10 @@
         <activity android:name=".ComprobanteActivity" android:exported="false" />
         <activity android:name=".HistorialActivity" android:exported="false" />
         <activity android:name=".AdminPendientesActivity" android:exported="false" />
+        <activity android:name=".InventarioActivity" android:exported="false" />
+
+        <!-- AGREGADA: ReportesActivity para evitar cierre forzoso (HU-15) -->
+        <activity android:name=".ReportesActivity" android:exported="false" />
 
         <receiver
             android:name=".util.ReminderReceiver"

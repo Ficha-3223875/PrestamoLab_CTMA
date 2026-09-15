@@ -10,6 +10,7 @@ import com.example.prestamolab.model.LoginRequest
 import com.example.prestamolab.model.LoginResponse
 import com.example.prestamolab.model.PrestamoHistorial
 import com.example.prestamolab.model.RecursoInventario
+import com.example.prestamolab.model.ReporteResumen
 import com.example.prestamolab.model.SancionResponse
 import com.example.prestamolab.model.SolicitudPendienteAdmin
 import com.example.prestamolab.model.SolicitudPrestamoRequest
@@ -22,6 +23,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -48,7 +50,7 @@ interface ApiService {
     suspend fun registrarDevolucion(@Body request: DevolucionRequest): Response<InventarioResponse>
 
     @POST("api/admin/incidencia")
-    suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<InventarioResponse>
+    suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<IncidenciaRequest>
 
     @GET("api/usuarios/estado/{email}")
     suspend fun verificarEstadoUsuario(@Path("email") email: String): Response<EstadoUsuarioResponse>
@@ -68,4 +70,12 @@ interface ApiService {
 
     @DELETE("api/admin/inventario/{id}")
     suspend fun eliminarRecurso(@Path("id") id: String): Response<InventarioResponse>
+
+    // HU-15: Métricas y Reportes
+    @GET("api/reportes/resumen")
+    suspend fun obtenerReporteResumen(
+        @Query("fechaInicio") fechaInicio: String?,
+        @Query("fechaFin") fechaFin: String?,
+        @Query("ficha") ficha: String?
+    ): Response<ReporteResumen>
 }
