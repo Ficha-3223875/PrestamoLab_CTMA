@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -17,7 +18,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.prestamolab.R
 import com.example.prestamolab.api.RetrofitClient
 import com.example.prestamolab.model.CatalogoItem
 import com.example.prestamolab.model.PrestamoHistorial
@@ -33,64 +33,82 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        sessionManager = SessionManager(this)
-        solicitarPermisoNotificaciones()
+        try {
+            setContentView(R.layout.activity_main)
+            sessionManager = SessionManager(this)
 
-        val tvBienvenida = findViewById<TextView?>(R.id.tvBienvenida)
-        val rvCatalogo = findViewById<RecyclerView?>(R.id.rvCatalogo)
-        val rvHistorial = findViewById<RecyclerView?>(R.id.rvHistorial)
-        val btnCerrarSesion = findViewById<Button?>(R.id.btnCerrarSesion)
+            // Permisos protegidos para evitar cierres inmediatos en emuladores recientes
+            solicitarPermisoNotificaciones()
 
-        val correoUsuario = sessionManager.getCorreo()
-        tvBienvenida?.text = if (correoUsuario.isNotEmpty()) "Hola, $correoUsuario" else "Bienvenido a PrestamoLab"
+            val tvBienvenida = findViewById<TextView?>(R.id.tvBienvenida)
+            val rvCatalogo = findViewById<RecyclerView?>(R.id.rvCatalogo)
+            val rvHistorial = findViewById<RecyclerView?>(R.id.rvHistorial)
+            val btnCerrarSesion = findViewById<Button?>(R.id.btnCerrarSesion)
 
-        rvCatalogo?.layoutManager = LinearLayoutManager(this)
-        rvHistorial?.layoutManager = LinearLayoutManager(this)
+            val correoUsuario = sessionManager.getCorreo()
+            tvBienvenida?.text = if (!correoUsuario.isNullOrEmpty()) "Hola, $correoUsuario" else "Bienvenido a PrestamoLab"
 
-        if (rvCatalogo != null) {
-            cargarCatalogo(rvCatalogo)
-        }
+            rvCatalogo?.layoutManager = LinearLayoutManager(this)
+            rvHistorial?.layoutManager = LinearLayoutManager(this)
 
-        if (rvHistorial != null) {
-            cargarHistorial(rvHistorial)
-        }
+            if (rvCatalogo != null) {
+                cargarCatalogo(rvCatalogo)
+            }
 
-        btnCerrarSesion?.setOnClickListener {
-            sessionManager.cerrarSesion()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            if (rvHistorial != null) {
+                cargarHistorial(rvHistorial)
+            }
+
+            btnCerrarSesion?.setOnClickListener {
+                sessionManager.cerrarSesion()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
+        } catch (e: Exception) {
+            Log.e("MainActivityCrash", "Error capturado en onCreate: ${e.message}", e)
+            Toast.makeText(this, "Error al cargar la interfaz principal: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun solicitarPermisoNotificaciones() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+                }
             }
+        } catch (e: Exception) {
+            Log.e("MainActivityCrash", "Error solicitando permisos: ${e.message}")
         }
     }
 
-    // Método para simular CP-07.1: Notificación instantánea al actualizar estado
     fun simularNotificacionAdmin(idSolicitud: String, nuevoEstado: String) {
-        NotificationHelper.enviarNotificacionEstado(this, idSolicitud, nuevoEstado)
+        try {
+            NotificationHelper.enviarNotificacionEstado(this, idSolicitud, nuevoEstado)
+        } catch (e: Exception) {
+            Log.e("MainActivityCrash", "Error en notificación: ${e.message}")
+        }
     }
 
-    // Método para simular CP-07.2: Programación de recordatorio previo a 30 minutos
     fun programarRecordatorio30Min(horaLimite: String, milisegundosParaLimite: Long) {
-        val intent = Intent(this, ReminderReceiver::class.java).apply {
-            putExtra("HORA_LIMITE", horaLimite)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        try {
+            val intent = Intent(this, ReminderReceiver::class.java).apply {
+                putExtra("HORA_LIMITE", horaLimite)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        val tiempoAlarma = System.currentTimeMillis() + milisegundosParaLimite
-        alarmManager.set(AlarmManager.RTC_WAKEUP, tiempoAlarma, pendingIntent)
-        Toast.makeText(this, "Recordatorio programado para $horaLimite", Toast.LENGTH_SHORT).show()
+            val tiempoAlarma = System.currentTimeMillis() + milisegundosParaLimite
+            alarmManager.set(AlarmManager.RTC_WAKEUP, tiempoAlarma, pendingIntent)
+            Toast.makeText(this, "Recordatorio programado para $horaLimite", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("MainActivityCrash", "Error programando alarma: ${e.message}")
+        }
     }
 
     private fun cargarCatalogo(rv: RecyclerView) {
@@ -104,15 +122,19 @@ class MainActivity : AppCompatActivity() {
         rv.adapter = CatalogoAdapter(equiposLaboratorio)
 
         lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@MainActivity,
-                call = { RetrofitClient.instance.getCatalogo() },
-                onExito = { respuesta ->
-                    if (!respuesta.isNullOrEmpty()) {
-                        rv.adapter = CatalogoAdapter(respuesta)
+            try {
+                NetworkHelper.ejecutarPeticionSegura(
+                    context = this@MainActivity,
+                    call = { RetrofitClient.instance.getCatalogo() },
+                    onExito = { respuesta ->
+                        if (!respuesta.isNullOrEmpty()) {
+                            rv.adapter = CatalogoAdapter(respuesta)
+                        }
                     }
-                }
-            )
+                )
+            } catch (e: Exception) {
+                Log.e("MainActivityCrash", "Error cargando catálogo desde red: ${e.message}")
+            }
         }
     }
 
@@ -125,15 +147,19 @@ class MainActivity : AppCompatActivity() {
         rv.adapter = HistorialAdapter(listaHistorial)
 
         lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@MainActivity,
-                call = { RetrofitClient.instance.getHistorial() },
-                onExito = { respuesta ->
-                    if (!respuesta.isNullOrEmpty()) {
-                        rv.adapter = HistorialAdapter(respuesta)
+            try {
+                NetworkHelper.ejecutarPeticionSegura(
+                    context = this@MainActivity,
+                    call = { RetrofitClient.instance.getHistorial() },
+                    onExito = { respuesta ->
+                        if (!respuesta.isNullOrEmpty()) {
+                            rv.adapter = HistorialAdapter(respuesta)
+                        }
                     }
-                }
-            )
+                )
+            } catch (e: Exception) {
+                Log.e("MainActivityCrash", "Error cargando historial desde red: ${e.message}")
+            }
         }
     }
 }

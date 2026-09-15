@@ -22,28 +22,26 @@ class AdminPendientesActivity : AppCompatActivity() {
         rvAdminPendientes = findViewById(R.id.rvAdminPendientes)
         rvAdminPendientes.layoutManager = LinearLayoutManager(this)
 
-        cargarSolicitudesPendientes()
+        cargarSolicitudesAdmin()
     }
 
-    private fun cargarSolicitudesPendientes() {
-        // Datos mock para pruebas en orden cronológico (CA-08.1)
+    private fun cargarSolicitudesAdmin() {
+        // Mock data incluyendo casos Aprobados para probar HU-09
         val mockSolicitudes = mutableListOf(
-            SolicitudPendienteAdmin("SOL-201", "Carlos Gómez", "carlos@sena.edu.co", "Osciloscopio Digital", "2026-09-14 08:00"),
-            SolicitudPendienteAdmin("SOL-202", "Ana Martínez", "ana@sena.edu.co", "Kit Robótica Arduino", "2026-09-14 08:15"),
-            SolicitudPendienteAdmin("SOL-203", "Luis Rodríguez", "luis@sena.edu.co", "Microscopio Binocular", "2026-09-14 09:00")
-        ).sortedBy { it.fechaHoraLlegada }.toMutableList() // Orden cronológico (CA-08.1)
+            SolicitudPendienteAdmin("SOL-201", "Carlos Gómez", "carlos@sena.edu.co", "Osciloscopio Digital", "2026-09-14 08:00", estado = "Aprobado"),
+            SolicitudPendienteAdmin("SOL-202", "Ana Martínez", "ana@sena.edu.co", "Kit Robótica Arduino", "2026-09-14 08:15", estado = "Pendiente"),
+            SolicitudPendienteAdmin("SOL-203", "Luis Rodríguez", "luis@sena.edu.co", "Microscopio Binocular", "2026-09-14 09:00", estado = "Aprobado")
+        ).sortedBy { it.fechaHoraLlegada }.toMutableList()
 
         rvAdminPendientes.adapter = AdminSolicitudesAdapter(
             listaSolicitudes = mockSolicitudes,
-            onAprobar = { solicitud ->
-                ejecutarAprobacion(solicitud.idSolicitud)
-            },
-            onRechazar = { solicitud, motivo ->
-                ejecutarRechazo(solicitud.idSolicitud, motivo)
-            }
+            onAprobar = { solicitud -> ejecutarAprobacion(solicitud.idSolicitud) },
+            onRechazar = { solicitud, motivo -> ejecutarRechazo(solicitud.idSolicitud, motivo) },
+            onEntregar = { solicitud -> ejecutarEntrega(solicitud.idSolicitud) },
+            onReasignar = { solicitud, nuevoEquipo -> ejecutarReasignacion(solicitud.idSolicitud, nuevoEquipo) }
         )
 
-        // Carga desde el servidor si la API responde
+        // Integración con API remota
         lifecycleScope.launch {
             NetworkHelper.ejecutarPeticionSegura(
                 context = this@AdminPendientesActivity,
@@ -53,8 +51,10 @@ class AdminPendientesActivity : AppCompatActivity() {
                         val ordenada = listaRemota.sortedBy { it.fechaHoraLlegada }.toMutableList()
                         rvAdminPendientes.adapter = AdminSolicitudesAdapter(
                             listaSolicitudes = ordenada,
-                            onAprobar = { solicitud -> ejecutarAprobacion(solicitud.idSolicitud) },
-                            onRechazar = { solicitud, motivo -> ejecutarRechazo(solicitud.idSolicitud, motivo) }
+                            onAprobar = { s -> ejecutarAprobacion(s.idSolicitud) },
+                            onRechazar = { s, m -> ejecutarRechazo(s.idSolicitud, m) },
+                            onEntregar = { s -> ejecutarEntrega(s.idSolicitud) },
+                            onReasignar = { s, e -> ejecutarReasignacion(s.idSolicitud, e) }
                         )
                     }
                 }
@@ -67,9 +67,7 @@ class AdminPendientesActivity : AppCompatActivity() {
             NetworkHelper.ejecutarPeticionSegura(
                 context = this@AdminPendientesActivity,
                 call = { RetrofitClient.instance.aprobarSolicitud(idSolicitud) },
-                onExito = {
-                    Toast.makeText(this@AdminPendientesActivity, "Aprobada en backend", Toast.LENGTH_SHORT).show()
-                }
+                onExito = { Toast.makeText(this@AdminPendientesActivity, "Aprobación registrada", Toast.LENGTH_SHORT).show() }
             )
         }
     }
@@ -79,9 +77,29 @@ class AdminPendientesActivity : AppCompatActivity() {
             NetworkHelper.ejecutarPeticionSegura(
                 context = this@AdminPendientesActivity,
                 call = { RetrofitClient.instance.rechazarSolicitud(idSolicitud, motivo) },
-                onExito = {
-                    Toast.makeText(this@AdminPendientesActivity, "Rechazada en backend", Toast.LENGTH_SHORT).show()
-                }
+                onExito = { Toast.makeText(this@AdminPendientesActivity, "Rechazo registrado", Toast.LENGTH_SHORT).show() }
+            )
+        }
+    }
+
+    // CA-09.1 API Call
+    private fun ejecutarEntrega(idSolicitud: String) {
+        lifecycleScope.launch {
+            NetworkHelper.ejecutarPeticionSegura(
+                context = this@AdminPendientesActivity,
+                call = { RetrofitClient.instance.registrarEntregaFisica(idSolicitud) },
+                onExito = { Toast.makeText(this@AdminPendientesActivity, "Entrega guardada en servidor", Toast.LENGTH_SHORT).show() }
+            )
+        }
+    }
+
+    // CA-09.2 API Call
+    private fun ejecutarReasignacion(idSolicitud: String, nuevoEquipo: String) {
+        lifecycleScope.launch {
+            NetworkHelper.ejecutarPeticionSegura(
+                context = this@AdminPendientesActivity,
+                call = { RetrofitClient.instance.reasignarEquipo(idSolicitud, nuevoEquipo) },
+                onExito = { Toast.makeText(this@AdminPendientesActivity, "Reasignación guardada", Toast.LENGTH_SHORT).show() }
             )
         }
     }

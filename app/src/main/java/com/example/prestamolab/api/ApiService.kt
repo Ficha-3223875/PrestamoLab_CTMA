@@ -36,7 +36,7 @@ interface ApiService {
     @POST("api/prestamos/cancelar/{id}")
     suspend fun cancelarPrestamo(@Path("id") idSolicitud: String): Response<Void>
 
-    // HU-08: Endpoints de Administración
+    // HU-08: Admin Pendientes
     @GET("api/admin/prestamos/pendientes")
     suspend fun getSolicitudesPendientes(): Response<List<SolicitudPendienteAdmin>>
 
@@ -47,5 +47,15 @@ interface ApiService {
     suspend fun rechazarSolicitud(
         @Path("id") idSolicitud: String,
         @Query("motivo") motivo: String
+    ): Response<Void>
+
+    // HU-09: Registrar Entrega e Imprevisto
+    @POST("api/admin/prestamos/{id}/entregar")
+    suspend fun registrarEntregaFisica(@Path("id") idSolicitud: String): Response<Void>
+
+    @POST("api/admin/prestamos/{id}/reasignar")
+    suspend fun reasignarEquipo(
+        @Path("id") idSolicitud: String,
+        @Query("nuevoEquipoId") nuevoEquipoId: String
     ): Response<Void>
 }

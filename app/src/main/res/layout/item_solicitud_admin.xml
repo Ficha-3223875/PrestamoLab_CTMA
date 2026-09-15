@@ -30,12 +30,13 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvHoraLlegada"
+                android:id="@+id/tvEstadoAdmin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2026-09-14 08:30"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="12sp" />
+                android:text="Aprobado"
+                android:textColor="#2E7D32"
+                android:textSize="14sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
@@ -52,9 +53,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="Equipo: Oscilloscopio Digital"
+            android:text="Equipo: Osciloscopio Digital"
             android:textSize="14sp"
             android:textStyle="italic" />
+
+        <!-- CA-09.1: Temporizador en vivo -->
+        <TextView
+            android:id="@+id/tvTemporizador"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Tiempo en préstamo: 00:00:00"
+            android:textColor="#C62828"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,6 +76,28 @@
             android:gravity="end"
             android:orientation="horizontal">
 
+            <!-- CA-09.2: Reportar Imprevisto -->
+            <Button
+                android:id="@+id/btnImprevistoAdmin"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Reportar Imprevisto"
+                android:textColor="#F57C00"
+                android:textSize="11sp" />
+
+            <!-- CA-09.1: Botón Entregar -->
+            <Button
+                android:id="@+id/btnEntregarAdmin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#1976D2"
+                android:text="Entregar"
+                android:textColor="@android:color/white"
+                android:textSize="11sp" />
+
+            <!-- HU-08 Botones previos -->
             <Button
                 android:id="@+id/btnRechazarAdmin"
                 style="?attr/materialButtonOutlinedStyle"
@@ -71,7 +106,8 @@
                 android:layout_marginEnd="8dp"
                 android:text="Rechazar"
                 android:textColor="#C62828"
-                android:textSize="12sp" />
+                android:textSize="11sp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btnAprobarAdmin"
@@ -80,7 +116,8 @@
                 android:backgroundTint="#2E7D32"
                 android:text="Aprobar"
                 android:textColor="@android:color/white"
-                android:textSize="12sp" />
+                android:textSize="11sp"
+                android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>

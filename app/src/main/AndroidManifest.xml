@@ -2,11 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.prestamolab">
 
-    <!-- Permisos de Red -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- HU-07: Permisos para Notificaciones Push y Alertas Programadas -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
@@ -35,7 +32,6 @@
         <activity android:name=".HistorialActivity" android:exported="false" />
         <activity android:name=".AdminPendientesActivity" android:exported="false" />
 
-        <!-- HU-07: Receiver para recordatorio de los 30 minutos antes de entrega -->
         <receiver
             android:name=".util.ReminderReceiver"
             android:exported="false" />

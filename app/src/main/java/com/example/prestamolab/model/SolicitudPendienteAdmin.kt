@@ -4,7 +4,8 @@ data class SolicitudPendienteAdmin(
     val idSolicitud: String,
     val nombreAprendiz: String,
     val correoAprendiz: String,
-    val equipoOEspacio: String,
-    val fechaHoraLlegada: String, // Para orden cronológico (CA-08.1)
-    var estado: String = "Pendiente"
+    var equipoOEspacio: String,
+    val fechaHoraLlegada: String,
+    var estado: String = "Pendiente",
+    var tiempoInicioMillis: Long = 0L // CA-09.1: Para iniciar el temporizador oficial
 )
