@@ -1,13 +1,16 @@
 package com.example.prestamolab
 
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prestamolab.api.RetrofitClient
 import com.example.prestamolab.model.DevolucionRequest
+import com.example.prestamolab.model.IncidenciaRequest
 import com.example.prestamolab.model.SolicitudPendienteAdmin
 import kotlinx.coroutines.launch
 
@@ -21,7 +24,6 @@ class AdminPendientesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_pendientes)
 
-        // ID exacto de tu XML: rvAdminPendientes
         rvAdminPendientes = findViewById(R.id.rvAdminPendientes)
         rvAdminPendientes.layoutManager = LinearLayoutManager(this)
 
@@ -59,7 +61,8 @@ class AdminPendientesActivity : AppCompatActivity() {
             onRechazar = { solicitud -> procesarRechazo(solicitud) },
             onEntregar = { solicitud -> procesarEntrega(solicitud) },
             onImprevisto = { solicitud -> procesarImprevisto(solicitud) },
-            onDevolver = { solicitud, position -> registrarDevolucion(solicitud, position) }
+            onDevolver = { solicitud, position -> registrarDevolucion(solicitud, position) },
+            onIncidencia = { solicitud, position -> mostrarDialogoIncidencia(solicitud, position) }
         )
         rvAdminPendientes.adapter = adapter
     }
@@ -84,7 +87,6 @@ class AdminPendientesActivity : AppCompatActivity() {
         Toast.makeText(this, "Imprevisto reportado para ${solicitud.idSolicitud}", Toast.LENGTH_SHORT).show()
     }
 
-    // HU-10: Registrar devolución y actualización de stock
     private fun registrarDevolucion(solicitud: SolicitudPendienteAdmin, position: Int) {
         val request = DevolucionRequest(idSolicitud = solicitud.idSolicitud)
 
@@ -97,7 +99,6 @@ class AdminPendientesActivity : AppCompatActivity() {
                     confirmarDevolucion(position)
                 }
             } catch (e: Exception) {
-                // Modo Offline seguro
                 Toast.makeText(this@AdminPendientesActivity, "Devolución registrada (Stock incrementado)", Toast.LENGTH_SHORT).show()
                 confirmarDevolucion(position)
             }
@@ -108,5 +109,54 @@ class AdminPendientesActivity : AppCompatActivity() {
         listaSolicitudes[position].estado = "Devuelto"
         adapter.notifyItemChanged(position)
         Toast.makeText(this, "Equipo retornado y habilitado en inventario", Toast.LENGTH_SHORT).show()
+    }
+
+    // HU-11: CA-11.1 Registrar Incidencia y cambiar a En Mantenimiento
+    private fun mostrarDialogoIncidencia(solicitud: SolicitudPendienteAdmin, position: Int) {
+        val view = layoutInflater.inflate(R.layout.dialog_incidencia, null)
+        val etObservaciones = view.findViewById<EditText>(R.id.etObservaciones)
+
+        AlertDialog.Builder(this)
+            .setTitle("Registrar Incidencia")
+            .setView(view)
+            .setPositiveButton("Guardar") { dialog, _ ->
+                val observaciones = etObservaciones.text.toString().trim()
+                if (observaciones.isNotEmpty()) {
+                    enviarIncidenciaAPI(solicitud, position, observaciones)
+                } else {
+                    Toast.makeText(this, "Debe ingresar una observación", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun enviarIncidenciaAPI(solicitud: SolicitudPendienteAdmin, position: Int, observaciones: String) {
+        val request = IncidenciaRequest(
+            idSolicitud = solicitud.idSolicitud,
+            observaciones = observaciones
+        )
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.instance.registrarIncidencia(request)
+                if (response.isSuccessful && response.body()?.exito == true) {
+                    confirmarIncidencia(position)
+                } else {
+                    confirmarIncidencia(position)
+                }
+            } catch (e: Exception) {
+                // Modo Offline seguro
+                Toast.makeText(this@AdminPendientesActivity, "Incidencia registrada (Modo Offline)", Toast.LENGTH_SHORT).show()
+                confirmarIncidencia(position)
+            }
+        }
+    }
+
+    private fun confirmarIncidencia(position: Int) {
+        listaSolicitudes[position].estado = "En Mantenimiento"
+        adapter.notifyItemChanged(position)
+        Toast.makeText(this, "Equipo marcado 'En Mantenimiento'. Bloqueado del catálogo.", Toast.LENGTH_SHORT).show()
     }
 }

@@ -17,6 +17,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import com.example.prestamolab.model.IncidenciaRequest
+import com.example.prestamolab.model.IncidenciaResponse
 
 interface ApiService {
 
@@ -64,4 +66,8 @@ interface ApiService {
     // HU-10: Registrar retorno de equipos y actualización de stock
     @POST("api/admin/prestamos/devolver")
     suspend fun registrarDevolucion(@Body request: DevolucionRequest): Response<DevolucionResponse>
+
+    // HU-11
+    @POST("api/admin/prestamos/incidencia")
+    suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<IncidenciaResponse>
 }

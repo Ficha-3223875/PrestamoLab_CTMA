@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prestamolab.model.SolicitudPendienteAdmin
@@ -15,7 +16,8 @@ class AdminSolicitudesAdapter(
     private val onRechazar: (SolicitudPendienteAdmin) -> Unit,
     private val onEntregar: (SolicitudPendienteAdmin) -> Unit,
     private val onImprevisto: (SolicitudPendienteAdmin) -> Unit,
-    private val onDevolver: (SolicitudPendienteAdmin, position: Int) -> Unit
+    private val onDevolver: (SolicitudPendienteAdmin, position: Int) -> Unit,
+    private val onIncidencia: (SolicitudPendienteAdmin, position: Int) -> Unit // CA-11.1
 ) : RecyclerView.Adapter<AdminSolicitudesAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -45,7 +47,6 @@ class AdminSolicitudesAdapter(
         holder.tvAprendizInfo.text = "Aprendiz: ${item.nombreAprendiz} (${item.correoAprendiz})"
         holder.tvEquipoSolicitado.text = "Equipo: ${item.equipoOEspacio}"
 
-        // Gestión visual por estados (HU-08, HU-09, HU-10)
         when (item.estado) {
             "Pendiente" -> {
                 holder.tvEstadoAdmin.setTextColor(Color.parseColor("#F57C00"))
@@ -62,6 +63,7 @@ class AdminSolicitudesAdapter(
                 holder.btnEntregarAdmin.visibility = View.VISIBLE
                 holder.btnEntregarAdmin.text = "Recibir Devolución"
                 holder.btnImprevistoAdmin.visibility = View.VISIBLE
+                holder.btnImprevistoAdmin.text = "Reportar Incidencia"
                 holder.tvTemporizador.visibility = View.VISIBLE
             }
             "Devuelto" -> {
@@ -74,15 +76,28 @@ class AdminSolicitudesAdapter(
                 holder.btnImprevistoAdmin.visibility = View.GONE
                 holder.tvTemporizador.visibility = View.GONE
             }
+            "En Mantenimiento" -> {
+                holder.tvEstadoAdmin.setTextColor(Color.parseColor("#D32F2F"))
+                holder.btnAprobarAdmin.visibility = View.GONE
+                holder.btnRechazarAdmin.visibility = View.GONE
+                holder.btnEntregarAdmin.visibility = View.VISIBLE
+                holder.btnEntregarAdmin.text = "En Mantenimiento"
+                holder.btnEntregarAdmin.isEnabled = false
+                holder.btnImprevistoAdmin.visibility = View.GONE
+                holder.tvTemporizador.visibility = View.GONE
+            }
         }
 
         holder.btnAprobarAdmin.setOnClickListener { onAprobar(item) }
         holder.btnRechazarAdmin.setOnClickListener { onRechazar(item) }
-        holder.btnImprevistoAdmin.setOnClickListener { onImprevisto(item) }
+
+        // Botón de imprevisto / incidencia
+        holder.btnImprevistoAdmin.setOnClickListener {
+            onIncidencia(item, position)
+        }
 
         holder.btnEntregarAdmin.setOnClickListener {
             if (item.estado == "En Préstamo" || item.estado == "Entregado") {
-                // Mitigación de peticiones duplicadas por múltiples clics seguidos
                 holder.btnEntregarAdmin.isEnabled = false
                 onDevolver(item, position)
             } else {

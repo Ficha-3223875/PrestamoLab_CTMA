@@ -15,6 +15,11 @@ class CatalogoAdapter(
     private val listaItems: List<CatalogoItem>
 ) : RecyclerView.Adapter<CatalogoAdapter.ViewHolder>() {
 
+    // CA-11.2: Filtrar la lista para mostrar solo los equipos disponibles
+    private val listaFiltrada: List<CatalogoItem> = listaItems.filter { item ->
+        item.disponible
+    }
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombreEquipo: TextView = view.findViewById(R.id.tvNombreEquipo)
         val tvDisponibilidad: TextView = view.findViewById(R.id.tvDisponibilidad)
@@ -30,7 +35,7 @@ class CatalogoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = listaItems[position]
+        val item = listaFiltrada[position]
 
         holder.tvNombreEquipo.text = item.nombre
         holder.tvMarcaModelo.text = "${item.marca} - ${item.modelo}"
@@ -49,7 +54,6 @@ class CatalogoAdapter(
             holder.btnSolicitarEquipo.alpha = 0.5f
         }
 
-        // Navegación a SolicitudActivity pasando la info del equipo
         holder.btnSolicitarEquipo.setOnClickListener {
             if (item.disponible) {
                 val context = holder.itemView.context
@@ -64,5 +68,5 @@ class CatalogoAdapter(
         }
     }
 
-    override fun getItemCount(): Int = listaItems.size
+    override fun getItemCount(): Int = listaFiltrada.size
 }
