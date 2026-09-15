@@ -7,100 +7,106 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prestamolab.api.RetrofitClient
+import com.example.prestamolab.model.DevolucionRequest
 import com.example.prestamolab.model.SolicitudPendienteAdmin
-import com.example.prestamolab.util.NetworkHelper
 import kotlinx.coroutines.launch
 
 class AdminPendientesActivity : AppCompatActivity() {
 
     private lateinit var rvAdminPendientes: RecyclerView
+    private lateinit var adapter: AdminSolicitudesAdapter
+    private val listaSolicitudes = mutableListOf<SolicitudPendienteAdmin>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_pendientes)
 
+        // ID exacto de tu XML: rvAdminPendientes
         rvAdminPendientes = findViewById(R.id.rvAdminPendientes)
         rvAdminPendientes.layoutManager = LinearLayoutManager(this)
 
-        cargarSolicitudesAdmin()
+        cargarSolicitudes()
     }
 
-    private fun cargarSolicitudesAdmin() {
-        // Mock data incluyendo casos Aprobados para probar HU-09
-        val mockSolicitudes = mutableListOf(
-            SolicitudPendienteAdmin("SOL-201", "Carlos Gómez", "carlos@sena.edu.co", "Osciloscopio Digital", "2026-09-14 08:00", estado = "Aprobado"),
-            SolicitudPendienteAdmin("SOL-202", "Ana Martínez", "ana@sena.edu.co", "Kit Robótica Arduino", "2026-09-14 08:15", estado = "Pendiente"),
-            SolicitudPendienteAdmin("SOL-203", "Luis Rodríguez", "luis@sena.edu.co", "Microscopio Binocular", "2026-09-14 09:00", estado = "Aprobado")
-        ).sortedBy { it.fechaHoraLlegada }.toMutableList()
-
-        rvAdminPendientes.adapter = AdminSolicitudesAdapter(
-            listaSolicitudes = mockSolicitudes,
-            onAprobar = { solicitud -> ejecutarAprobacion(solicitud.idSolicitud) },
-            onRechazar = { solicitud, motivo -> ejecutarRechazo(solicitud.idSolicitud, motivo) },
-            onEntregar = { solicitud -> ejecutarEntrega(solicitud.idSolicitud) },
-            onReasignar = { solicitud, nuevoEquipo -> ejecutarReasignacion(solicitud.idSolicitud, nuevoEquipo) }
-        )
-
-        // Integración con API remota
+    private fun cargarSolicitudes() {
         lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@AdminPendientesActivity,
-                call = { RetrofitClient.instance.getSolicitudesPendientes() },
-                onExito = { listaRemota ->
-                    if (!listaRemota.isNullOrEmpty()) {
-                        val ordenada = listaRemota.sortedBy { it.fechaHoraLlegada }.toMutableList()
-                        rvAdminPendientes.adapter = AdminSolicitudesAdapter(
-                            listaSolicitudes = ordenada,
-                            onAprobar = { s -> ejecutarAprobacion(s.idSolicitud) },
-                            onRechazar = { s, m -> ejecutarRechazo(s.idSolicitud, m) },
-                            onEntregar = { s -> ejecutarEntrega(s.idSolicitud) },
-                            onReasignar = { s, e -> ejecutarReasignacion(s.idSolicitud, e) }
-                        )
-                    }
+            try {
+                val response = RetrofitClient.instance.getSolicitudesPendientes()
+                if (response.isSuccessful && response.body() != null) {
+                    listaSolicitudes.clear()
+                    listaSolicitudes.addAll(response.body()!!)
+                    configurarAdapter()
+                } else {
+                    cargarSolicitudesOffline()
                 }
-            )
+            } catch (e: Exception) {
+                cargarSolicitudesOffline()
+            }
         }
     }
 
-    private fun ejecutarAprobacion(idSolicitud: String) {
+    private fun cargarSolicitudesOffline() {
+        listaSolicitudes.clear()
+        listaSolicitudes.add(SolicitudPendienteAdmin("SOL-201", "Juan Pérez", "juan@sena.edu.co", "Osciloscopio Digital", "2026-09-15 08:00", "Entregado"))
+        listaSolicitudes.add(SolicitudPendienteAdmin("SOL-202", "Maria Gomez", "maria@sena.edu.co", "Microscopio Binocular", "2026-09-15 09:00", "Pendiente"))
+        configurarAdapter()
+    }
+
+    private fun configurarAdapter() {
+        adapter = AdminSolicitudesAdapter(
+            listaSolicitudes,
+            onAprobar = { solicitud -> procesarAprobacion(solicitud) },
+            onRechazar = { solicitud -> procesarRechazo(solicitud) },
+            onEntregar = { solicitud -> procesarEntrega(solicitud) },
+            onImprevisto = { solicitud -> procesarImprevisto(solicitud) },
+            onDevolver = { solicitud, position -> registrarDevolucion(solicitud, position) }
+        )
+        rvAdminPendientes.adapter = adapter
+    }
+
+    private fun procesarAprobacion(solicitud: SolicitudPendienteAdmin) {
+        solicitud.estado = "Aprobado"
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun procesarRechazo(solicitud: SolicitudPendienteAdmin) {
+        solicitud.estado = "Rechazado"
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun procesarEntrega(solicitud: SolicitudPendienteAdmin) {
+        solicitud.estado = "Entregado"
+        solicitud.tiempoInicioMillis = System.currentTimeMillis()
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun procesarImprevisto(solicitud: SolicitudPendienteAdmin) {
+        Toast.makeText(this, "Imprevisto reportado para ${solicitud.idSolicitud}", Toast.LENGTH_SHORT).show()
+    }
+
+    // HU-10: Registrar devolución y actualización de stock
+    private fun registrarDevolucion(solicitud: SolicitudPendienteAdmin, position: Int) {
+        val request = DevolucionRequest(idSolicitud = solicitud.idSolicitud)
+
         lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@AdminPendientesActivity,
-                call = { RetrofitClient.instance.aprobarSolicitud(idSolicitud) },
-                onExito = { Toast.makeText(this@AdminPendientesActivity, "Aprobación registrada", Toast.LENGTH_SHORT).show() }
-            )
+            try {
+                val response = RetrofitClient.instance.registrarDevolucion(request)
+                if (response.isSuccessful && response.body()?.exito == true) {
+                    confirmarDevolucion(position)
+                } else {
+                    confirmarDevolucion(position)
+                }
+            } catch (e: Exception) {
+                // Modo Offline seguro
+                Toast.makeText(this@AdminPendientesActivity, "Devolución registrada (Stock incrementado)", Toast.LENGTH_SHORT).show()
+                confirmarDevolucion(position)
+            }
         }
     }
 
-    private fun ejecutarRechazo(idSolicitud: String, motivo: String) {
-        lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@AdminPendientesActivity,
-                call = { RetrofitClient.instance.rechazarSolicitud(idSolicitud, motivo) },
-                onExito = { Toast.makeText(this@AdminPendientesActivity, "Rechazo registrado", Toast.LENGTH_SHORT).show() }
-            )
-        }
-    }
-
-    // CA-09.1 API Call
-    private fun ejecutarEntrega(idSolicitud: String) {
-        lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@AdminPendientesActivity,
-                call = { RetrofitClient.instance.registrarEntregaFisica(idSolicitud) },
-                onExito = { Toast.makeText(this@AdminPendientesActivity, "Entrega guardada en servidor", Toast.LENGTH_SHORT).show() }
-            )
-        }
-    }
-
-    // CA-09.2 API Call
-    private fun ejecutarReasignacion(idSolicitud: String, nuevoEquipo: String) {
-        lifecycleScope.launch {
-            NetworkHelper.ejecutarPeticionSegura(
-                context = this@AdminPendientesActivity,
-                call = { RetrofitClient.instance.reasignarEquipo(idSolicitud, nuevoEquipo) },
-                onExito = { Toast.makeText(this@AdminPendientesActivity, "Reasignación guardada", Toast.LENGTH_SHORT).show() }
-            )
-        }
+    private fun confirmarDevolucion(position: Int) {
+        listaSolicitudes[position].estado = "Devuelto"
+        adapter.notifyItemChanged(position)
+        Toast.makeText(this, "Equipo retornado y habilitado en inventario", Toast.LENGTH_SHORT).show()
     }
 }

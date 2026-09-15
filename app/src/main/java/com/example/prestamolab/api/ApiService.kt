@@ -1,6 +1,8 @@
 package com.example.prestamolab.api
 
 import com.example.prestamolab.model.CatalogoItem
+import com.example.prestamolab.model.DevolucionRequest
+import com.example.prestamolab.model.DevolucionResponse
 import com.example.prestamolab.model.Estudiante
 import com.example.prestamolab.model.LoginRequest
 import com.example.prestamolab.model.LoginResponse
@@ -58,4 +60,8 @@ interface ApiService {
         @Path("id") idSolicitud: String,
         @Query("nuevoEquipoId") nuevoEquipoId: String
     ): Response<Void>
+
+    // HU-10: Registrar retorno de equipos y actualización de stock
+    @POST("api/admin/prestamos/devolver")
+    suspend fun registrarDevolucion(@Body request: DevolucionRequest): Response<DevolucionResponse>
 }
