@@ -2,81 +2,70 @@ package com.example.prestamolab.api
 
 import com.example.prestamolab.model.CatalogoItem
 import com.example.prestamolab.model.DevolucionRequest
-import com.example.prestamolab.model.DevolucionResponse
 import com.example.prestamolab.model.Estudiante
+import com.example.prestamolab.model.EstadoUsuarioResponse
+import com.example.prestamolab.model.IncidenciaRequest
+import com.example.prestamolab.model.InventarioResponse
 import com.example.prestamolab.model.LoginRequest
 import com.example.prestamolab.model.LoginResponse
 import com.example.prestamolab.model.PrestamoHistorial
+import com.example.prestamolab.model.RecursoInventario
+import com.example.prestamolab.model.SancionResponse
 import com.example.prestamolab.model.SolicitudPendienteAdmin
 import com.example.prestamolab.model.SolicitudPrestamoRequest
 import com.example.prestamolab.model.SolicitudPrestamoResponse
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
-import retrofit2.http.Query
-import com.example.prestamolab.model.IncidenciaRequest
-import com.example.prestamolab.model.IncidenciaResponse
-import com.example.prestamolab.model.EstadoUsuarioResponse
-import com.example.prestamolab.model.SancionResponse
 
 interface ApiService {
 
-    @POST("api/estudiantes/registro")
+    // Registro de Estudiante
+    @POST("api/estudiantes")
     fun registrarEstudiante(@Body estudiante: Estudiante): Call<Void>
 
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    @POST("api/prestamos/solicitar")
-    fun solicitarPrestamo(@Body request: SolicitudPrestamoRequest): Call<SolicitudPrestamoResponse>
-
     @GET("api/catalogo")
     suspend fun getCatalogo(): Response<List<CatalogoItem>>
 
-    @GET("api/prestamos/historial")
-    suspend fun getHistorial(): Response<List<PrestamoHistorial>>
+    @GET("api/historial/{email}")
+    suspend fun getHistorial(@Path("email") email: String): Response<List<PrestamoHistorial>>
 
-    @POST("api/prestamos/cancelar/{id}")
-    suspend fun cancelarPrestamo(@Path("id") idSolicitud: String): Response<Void>
+    @POST("api/solicitudes")
+    suspend fun crearSolicitud(@Body request: SolicitudPrestamoRequest): Response<SolicitudPrestamoResponse>
 
-    // HU-08: Admin Pendientes
-    @GET("api/admin/prestamos/pendientes")
+    @GET("api/admin/solicitudes/pendientes")
     suspend fun getSolicitudesPendientes(): Response<List<SolicitudPendienteAdmin>>
 
-    @POST("api/admin/prestamos/{id}/aprobar")
-    suspend fun aprobarSolicitud(@Path("id") idSolicitud: String): Response<Void>
+    @POST("api/admin/devolucion")
+    suspend fun registrarDevolucion(@Body request: DevolucionRequest): Response<InventarioResponse>
 
-    @POST("api/admin/prestamos/{id}/rechazar")
-    suspend fun rechazarSolicitud(
-        @Path("id") idSolicitud: String,
-        @Query("motivo") motivo: String
-    ): Response<Void>
+    @POST("api/admin/incidencia")
+    suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<InventarioResponse>
 
-    // HU-09: Registrar Entrega e Imprevisto
-    @POST("api/admin/prestamos/{id}/entregar")
-    suspend fun registrarEntregaFisica(@Path("id") idSolicitud: String): Response<Void>
-
-    @POST("api/admin/prestamos/{id}/reasignar")
-    suspend fun reasignarEquipo(
-        @Path("id") idSolicitud: String,
-        @Query("nuevoEquipoId") nuevoEquipoId: String
-    ): Response<Void>
-
-    // HU-10: Registrar retorno de equipos y actualización de stock
-    @POST("api/admin/prestamos/devolver")
-    suspend fun registrarDevolucion(@Body request: DevolucionRequest): Response<DevolucionResponse>
-
-    // HU-11
-    @POST("api/admin/prestamos/incidencia")
-    suspend fun registrarIncidencia(@Body request: IncidenciaRequest): Response<IncidenciaResponse>
-
-    // HU-12
     @GET("api/usuarios/estado/{email}")
     suspend fun verificarEstadoUsuario(@Path("email") email: String): Response<EstadoUsuarioResponse>
 
     @POST("api/admin/prestamos/devolver-sancionar")
     suspend fun registrarDevolucionConSancion(@Body request: DevolucionRequest): Response<SancionResponse>
+
+    // HU-13: CRUD de Inventario y Laboratorios
+    @GET("api/admin/inventario")
+    suspend fun getInventario(): Response<List<RecursoInventario>>
+
+    @POST("api/admin/inventario")
+    suspend fun crearRecurso(@Body recurso: RecursoInventario): Response<InventarioResponse>
+
+    @PUT("api/admin/inventario/{id}")
+    suspend fun actualizarRecurso(@Path("id") id: String, @Body recurso: RecursoInventario): Response<InventarioResponse>
+
+    @DELETE("api/admin/inventario/{id}")
+    suspend fun eliminarRecurso(@Path("id") id: String): Response<InventarioResponse>
 }

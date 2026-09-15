@@ -146,11 +146,13 @@ class MainActivity : AppCompatActivity() {
 
         rv.adapter = HistorialAdapter(listaHistorial)
 
+        val correo = sessionManager.getCorreo() ?: "aprendiz@sena.edu.co"
+
         lifecycleScope.launch {
             try {
                 NetworkHelper.ejecutarPeticionSegura(
                     context = this@MainActivity,
-                    call = { RetrofitClient.instance.getHistorial() },
+                    call = { RetrofitClient.instance.getHistorial(correo) },
                     onExito = { respuesta ->
                         if (!respuesta.isNullOrEmpty()) {
                             rv.adapter = HistorialAdapter(respuesta)
