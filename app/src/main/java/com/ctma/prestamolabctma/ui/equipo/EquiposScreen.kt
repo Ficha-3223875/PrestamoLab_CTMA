@@ -1,5 +1,6 @@
 package com.ctma.prestamolabctma.ui.equipo
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,13 +10,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +57,6 @@ fun EquiposScreen(
     onFinalizarMantenimiento: (Equipo) -> Unit,
     onVolver: () -> Unit
 ) {
-
     var mostrarAgregar by remember {
         mutableStateOf(false)
     }
@@ -58,39 +72,50 @@ fun EquiposScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
     ) {
 
         Text(
             text = "Equipos",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "Gestión de equipos",
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 16.dp
-            )
+            text = "Administra el inventario de equipos",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 18.dp)
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
             Button(
                 onClick = {
                     mostrarAgregar = true
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Agregar")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+
+                Text(
+                    text = "Agregar",
+                    modifier = Modifier.padding(start = 6.dp)
+                )
             }
 
-            Button(
+            FilledTonalButton(
                 onClick = onVolver,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Text("Volver")
             }
@@ -100,9 +125,8 @@ fun EquiposScreen(
 
             Text(
                 text = "No hay equipos registrados.",
-                modifier = Modifier.padding(
-                    top = 16.dp
-                )
+                modifier = Modifier.padding(top = 20.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
         } else {
@@ -111,52 +135,33 @@ fun EquiposScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 16.dp),
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp),
-                contentPadding =
-                    PaddingValues(bottom = 16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 20.dp)
             ) {
-
                 items(equipos) { equipo ->
 
                     EquipoCard(
                         equipo = equipo,
-
                         onEditar = {
                             equipoEditar = equipo
                         },
-
                         onEliminar = {
                             equipoEliminar = equipo
                         },
-
-                        onReportarIncidente =
-                            onReportarIncidente,
-
-                        onFinalizarMantenimiento =
-                            onFinalizarMantenimiento
+                        onReportarIncidente = onReportarIncidente,
+                        onFinalizarMantenimiento = onFinalizarMantenimiento
                     )
                 }
             }
         }
     }
 
-    // =====================================================
-    // AGREGAR EQUIPO
-    // =====================================================
-
     if (mostrarAgregar) {
 
         FormularioEquipoDialog(
             titulo = "Agregar equipo",
             equipo = null,
-
-            onConfirmar = {
-                    nombre,
-                    tipo,
-                    codigo,
-                    estado,
-                    disponible ->
+            onConfirmar = { nombre, tipo, codigo, _, _ ->
 
                 val resultado = onAgregar(
                     nombre,
@@ -170,29 +175,18 @@ fun EquiposScreen(
 
                 resultado
             },
-
             onCancelar = {
                 mostrarAgregar = false
             }
         )
     }
 
-    // =====================================================
-    // EDITAR EQUIPO
-    // =====================================================
-
     equipoEditar?.let { equipo ->
 
         FormularioEquipoDialog(
             titulo = "Editar equipo",
             equipo = equipo,
-
-            onConfirmar = {
-                    nombre,
-                    tipo,
-                    codigo,
-                    estado,
-                    disponible ->
+            onConfirmar = { nombre, tipo, codigo, estado, disponible ->
 
                 val resultado = onEditar(
                     equipo.id,
@@ -209,16 +203,11 @@ fun EquiposScreen(
 
                 resultado
             },
-
             onCancelar = {
                 equipoEditar = null
             }
         )
     }
-
-    // =====================================================
-    // ELIMINAR EQUIPO
-    // =====================================================
 
     equipoEliminar?.let { equipo ->
 
@@ -226,36 +215,25 @@ fun EquiposScreen(
             onDismissRequest = {
                 equipoEliminar = null
             },
-
             title = {
                 Text("Eliminar equipo")
             },
-
             text = {
                 Text(
-                    "¿Deseas eliminar el equipo " +
-                            "\"${equipo.nombre}\"?"
+                    "¿Deseas eliminar el equipo \"${equipo.nombre}\"?"
                 )
             },
-
             confirmButton = {
-
                 TextButton(
                     onClick = {
-
-                        onEliminar(
-                            equipo.id
-                        )
-
+                        onEliminar(equipo.id)
                         equipoEliminar = null
                     }
                 ) {
                     Text("Eliminar")
                 }
             },
-
             dismissButton = {
-
                 TextButton(
                     onClick = {
                         equipoEliminar = null
@@ -268,10 +246,6 @@ fun EquiposScreen(
     }
 }
 
-// =========================================================
-// TARJETA DEL EQUIPO
-// =========================================================
-
 @Composable
 fun EquipoCard(
     equipo: Equipo,
@@ -280,7 +254,6 @@ fun EquipoCard(
     onReportarIncidente: (Equipo, String) -> Unit,
     onFinalizarMantenimiento: (Equipo) -> Unit
 ) {
-
     var mostrarDialogo by remember {
         mutableStateOf(false)
     }
@@ -290,61 +263,113 @@ fun EquipoCard(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement =
-                Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Icon(
+                    imageVector = Icons.Default.Build,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                ) {
+
+                    Text(
+                        text = equipo.nombre,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = equipo.tipo,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Text(
-                text = equipo.nombre,
-                style = MaterialTheme
-                    .typography
-                    .titleMedium
+                text = "Código: ${equipo.codigo}",
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
-                text = "Código: ${equipo.codigo}"
+                text = "Estado: ${equipo.estado}",
+                style = MaterialTheme.typography.bodyMedium
             )
 
-            Text(
-                text = "Tipo: ${equipo.tipo}"
-            )
+            Surface(
+                shape = RoundedCornerShape(50.dp),
+                color = if (equipo.disponible) {
+                    MaterialTheme.colorScheme.secondaryContainer
+                } else {
+                    MaterialTheme.colorScheme.errorContainer
+                }
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 7.dp
+                    )
+                ) {
 
-            Text(
-                text = "Estado: ${equipo.estado}"
-            )
+                    Icon(
+                        imageVector = if (equipo.disponible) {
+                            Icons.Default.CheckCircle
+                        } else {
+                            Icons.Default.Block
+                        },
+                        contentDescription = null
+                    )
 
-            Text(
-                text =
-                    if (equipo.disponible) {
-                        "Disponibilidad: Disponible"
-                    } else {
-                        "Disponibilidad: No disponible"
-                    }
-            )
+                    Text(
+                        text = if (equipo.disponible) {
+                            "Disponible"
+                        } else {
+                            "No disponible"
+                        },
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                Button(
-                    onClick = onEditar,
-                    modifier = Modifier.weight(1f)
+                IconButton(
+                    onClick = onEditar
                 ) {
-                    Text("Editar")
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar"
+                    )
                 }
 
-                Button(
-                    onClick = onEliminar,
-                    modifier = Modifier.weight(1f)
+                IconButton(
+                    onClick = onEliminar
                 ) {
-                    Text("Eliminar")
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
 
@@ -356,39 +381,44 @@ fun EquipoCard(
             ) {
 
                 Text(
-                    text =
-                        "⚠️ Este equipo no está disponible para préstamos."
+                    text = "Este equipo está en mantenimiento.",
+                    color = MaterialTheme.colorScheme.error
                 )
 
                 Button(
                     onClick = {
-                        onFinalizarMantenimiento(
-                            equipo
-                        )
+                        onFinalizarMantenimiento(equipo)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Text("Finalizar mantenimiento")
                 }
 
             } else {
 
-                Button(
+                FilledTonalButton(
                     onClick = {
                         observacion = ""
                         mostrarDialogo = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text("Reportar incidente")
+
+                    Icon(
+                        imageVector = Icons.Default.ReportProblem,
+                        contentDescription = null
+                    )
+
+                    Text(
+                        text = "Reportar incidente",
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
                 }
             }
         }
     }
-
-    // =====================================================
-    // DIÁLOGO DE INCIDENTE
-    // =====================================================
 
     if (mostrarDialogo) {
 
@@ -396,56 +426,36 @@ fun EquipoCard(
             onDismissRequest = {
                 mostrarDialogo = false
             },
-
             title = {
                 Text("Reportar incidente")
             },
-
             text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
 
-                Column {
-
-                    Text(
-                        text =
-                            "Equipo: ${equipo.nombre}"
-                    )
-
-                    Text(
-                        text =
-                            "Código: ${equipo.codigo}",
-                        modifier = Modifier.padding(
-                            top = 4.dp
-                        )
-                    )
+                    Text("Equipo: ${equipo.nombre}")
+                    Text("Código: ${equipo.codigo}")
 
                     OutlinedTextField(
                         value = observacion,
-
                         onValueChange = {
                             observacion = it
                         },
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-
+                        modifier = Modifier.fillMaxWidth(),
                         label = {
-                            Text("Observación")
+                            Text("Descripción del incidente")
                         },
-
                         minLines = 3
                     )
                 }
             },
-
             confirmButton = {
 
                 TextButton(
                     onClick = {
 
-                        if (
-                            observacion.isNotBlank()
-                        ) {
+                        if (observacion.isNotBlank()) {
 
                             onReportarIncidente(
                                 equipo,
@@ -460,7 +470,6 @@ fun EquipoCard(
                     Text("Reportar")
                 }
             },
-
             dismissButton = {
 
                 TextButton(
@@ -474,10 +483,6 @@ fun EquipoCard(
         )
     }
 }
-
-// =========================================================
-// FORMULARIO DE EQUIPO
-// =========================================================
 
 @Composable
 private fun FormularioEquipoDialog(
@@ -494,33 +499,23 @@ private fun FormularioEquipoDialog(
 ) {
 
     var nombre by remember {
-        mutableStateOf(
-            equipo?.nombre ?: ""
-        )
+        mutableStateOf(equipo?.nombre ?: "")
     }
 
     var tipo by remember {
-        mutableStateOf(
-            equipo?.tipo ?: ""
-        )
+        mutableStateOf(equipo?.tipo ?: "")
     }
 
     var codigo by remember {
-        mutableStateOf(
-            equipo?.codigo ?: ""
-        )
+        mutableStateOf(equipo?.codigo ?: "")
     }
 
     var estado by remember {
-        mutableStateOf(
-            equipo?.estado ?: "Disponible"
-        )
+        mutableStateOf(equipo?.estado ?: "Disponible")
     }
 
     var disponible by remember {
-        mutableStateOf(
-            equipo?.disponible ?: true
-        )
+        mutableStateOf(equipo?.disponible ?: true)
     }
 
     var error by remember {
@@ -528,72 +523,52 @@ private fun FormularioEquipoDialog(
     }
 
     AlertDialog(
-
         onDismissRequest = onCancelar,
-
         title = {
             Text(titulo)
         },
-
         text = {
 
             Column(
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 OutlinedTextField(
                     value = nombre,
-
                     onValueChange = {
                         nombre = it
                         error = ""
                     },
-
                     modifier = Modifier.fillMaxWidth(),
-
                     label = {
                         Text("Nombre")
                     },
-
                     singleLine = true
                 )
 
                 OutlinedTextField(
                     value = tipo,
-
                     onValueChange = {
                         tipo = it
                         error = ""
                     },
-
                     modifier = Modifier.fillMaxWidth(),
-
                     label = {
                         Text("Tipo")
                     },
-
                     singleLine = true
                 )
 
                 OutlinedTextField(
                     value = codigo,
-
                     onValueChange = {
                         codigo = it
                         error = ""
                     },
-
                     modifier = Modifier.fillMaxWidth(),
-
                     label = {
                         Text("Código")
                     },
-
-                    placeholder = {
-                        Text("Ej. EQ-005")
-                    },
-
                     singleLine = true
                 )
 
@@ -601,18 +576,14 @@ private fun FormularioEquipoDialog(
 
                     OutlinedTextField(
                         value = estado,
-
                         onValueChange = {
                             estado = it
                             error = ""
                         },
-
                         modifier = Modifier.fillMaxWidth(),
-
                         label = {
                             Text("Estado")
                         },
-
                         singleLine = true
                     )
 
@@ -620,17 +591,14 @@ private fun FormularioEquipoDialog(
                         onClick = {
                             disponible = !disponible
                         },
-
                         modifier = Modifier.fillMaxWidth()
                     ) {
-
                         Text(
-                            text =
-                                if (disponible) {
-                                    "Disponible"
-                                } else {
-                                    "No disponible"
-                                }
+                            if (disponible) {
+                                "Disponible"
+                            } else {
+                                "No disponible"
+                            }
                         )
                     }
                 }
@@ -639,15 +607,11 @@ private fun FormularioEquipoDialog(
 
                     Text(
                         text = error,
-
-                        color = MaterialTheme
-                            .colorScheme
-                            .error
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         },
-
         confirmButton = {
 
             TextButton(
@@ -674,7 +638,6 @@ private fun FormularioEquipoDialog(
                     )
 
                     if (!resultado) {
-
                         error =
                             "No se pudieron guardar los datos. Verifica que el código no esté repetido."
                     }
@@ -683,9 +646,7 @@ private fun FormularioEquipoDialog(
                 Text("Guardar")
             }
         },
-
         dismissButton = {
-
             TextButton(
                 onClick = onCancelar
             ) {

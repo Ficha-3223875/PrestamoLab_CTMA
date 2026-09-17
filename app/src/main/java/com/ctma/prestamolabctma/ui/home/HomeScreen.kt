@@ -1,15 +1,30 @@
 package com.ctma.prestamolabctma.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -21,64 +36,164 @@ fun HomeScreen(
     onLaboratoriosClick: () -> Unit,
     onMetricasClick: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
     ) {
 
         Text(
-            text = "PréstamoLab CTMA",
-            style = MaterialTheme.typography.headlineMedium
+            text = "PréstamoLab",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "Sistema de préstamo de equipos",
-            style = MaterialTheme.typography.bodyLarge
+            text = "CTMA",
+            style = MaterialTheme.typography.titleMedium
         )
 
-        Button(
-            onClick = onCatalogoClick,
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Gestión de préstamos de equipos",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
         ) {
-            Text("Catálogo de equipos")
+            Column(
+                modifier = Modifier.padding(22.dp)
+            ) {
+                Text(
+                    text = "Bienvenido",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Consulta equipos, realiza solicitudes y administra tus préstamos.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
-        Button(
-            onClick = onEquiposClick,
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Accesos rápidos",
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Equipos")
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.Inventory,
+                title = "Catálogo",
+                onClick = onCatalogoClick
+            )
+
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.Devices,
+                title = "Equipos",
+                onClick = onEquiposClick
+            )
         }
 
-        Button(
-            onClick = onSolicitudesClick,
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Solicitudes")
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.Assignment,
+                title = "Solicitudes",
+                onClick = onSolicitudesClick
+            )
+
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.ListAlt,
+                title = "Préstamos",
+                onClick = onPrestamosClick
+            )
         }
 
-        Button(
-            onClick = onPrestamosClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Mis préstamos")
-        }
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Button(
-            onClick = onLaboratoriosClick,
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Laboratorios")
-        }
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.Business,
+                title = "Laboratorios",
+                onClick = onLaboratoriosClick
+            )
 
-        Button(
-            onClick = onMetricasClick,
-            modifier = Modifier.fillMaxWidth()
+            HomeCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.BarChart,
+                title = "Métricas",
+                onClick = onMetricasClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
         ) {
-            Text("Métricas y reportes")
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

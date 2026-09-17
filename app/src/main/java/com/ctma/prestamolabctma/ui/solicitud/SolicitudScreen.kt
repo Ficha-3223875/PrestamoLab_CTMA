@@ -84,8 +84,8 @@ fun SolicitudScreen(
         )
 
         Text(
-            text = "Equipo: ${equipo.nombre}",
-            style = MaterialTheme.typography.titleMedium
+            text = equipo.nombre,
+            style = MaterialTheme.typography.titleLarge
         )
 
         Text(
@@ -97,6 +97,11 @@ fun SolicitudScreen(
                 "Estado: Disponible"
             } else {
                 "Estado: No disponible"
+            },
+            color = if (equipo.disponible) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.error
             }
         )
 
@@ -107,7 +112,8 @@ fun SolicitudScreen(
             label = {
                 Text("Fecha de préstamo")
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Button(
@@ -117,7 +123,7 @@ fun SolicitudScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Seleccionar fecha de préstamo")
+            Text("Seleccionar fecha")
         }
 
         OutlinedTextField(
@@ -127,7 +133,8 @@ fun SolicitudScreen(
             label = {
                 Text("Fecha de devolución")
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Button(
@@ -137,7 +144,7 @@ fun SolicitudScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Seleccionar fecha de devolución")
+            Text("Seleccionar fecha")
         }
 
         OutlinedTextField(
@@ -157,7 +164,8 @@ fun SolicitudScreen(
 
             Text(
                 text = error,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
 
@@ -170,14 +178,6 @@ fun SolicitudScreen(
                         error = "Este equipo no está disponible."
                     }
 
-                    fechaPrestamo.isBlank() -> {
-                        error = "Selecciona la fecha de préstamo."
-                    }
-
-                    fechaDevolucion.isBlank() -> {
-                        error = "Selecciona la fecha de devolución."
-                    }
-
                     fechaPrestamoMillis == null -> {
                         error = "Selecciona la fecha de préstamo."
                     }
@@ -187,7 +187,8 @@ fun SolicitudScreen(
                     }
 
                     fechaDevolucionMillis!! <= fechaPrestamoMillis!! -> {
-                        error = "La fecha de devolución debe ser posterior a la fecha de préstamo."
+                        error =
+                            "La fecha de devolución debe ser posterior a la fecha de préstamo."
                     }
 
                     motivo.isBlank() -> {
@@ -201,7 +202,7 @@ fun SolicitudScreen(
                             equipo = equipo,
                             fechaPrestamo = fechaPrestamo,
                             fechaDevolucion = fechaDevolucion,
-                            motivo = motivo,
+                            motivo = motivo.trim(),
                             estado = "Pendiente"
                         )
 
@@ -209,23 +210,28 @@ fun SolicitudScreen(
                     }
                 }
             },
+            enabled = equipo.disponible,
             modifier = Modifier.fillMaxWidth()
         ) {
 
-            Text(
-                text = "Enviar solicitud"
-            )
+            Text("Enviar solicitud")
         }
     }
+
+    // =====================================================
+    // CALENDARIO PRÉSTAMO
+    // =====================================================
 
     if (mostrarCalendarioPrestamo) {
 
         val estadoFecha = rememberDatePickerState()
 
         DatePickerDialog(
+
             onDismissRequest = {
                 mostrarCalendarioPrestamo = false
             },
+
             confirmButton = {
 
                 TextButton(
@@ -249,6 +255,7 @@ fun SolicitudScreen(
                     Text("Aceptar")
                 }
             },
+
             dismissButton = {
 
                 TextButton(
@@ -259,6 +266,7 @@ fun SolicitudScreen(
                     Text("Cancelar")
                 }
             }
+
         ) {
 
             DatePicker(
@@ -267,14 +275,20 @@ fun SolicitudScreen(
         }
     }
 
+    // =====================================================
+    // CALENDARIO DEVOLUCIÓN
+    // =====================================================
+
     if (mostrarCalendarioDevolucion) {
 
         val estadoFecha = rememberDatePickerState()
 
         DatePickerDialog(
+
             onDismissRequest = {
                 mostrarCalendarioDevolucion = false
             },
+
             confirmButton = {
 
                 TextButton(
@@ -298,6 +312,7 @@ fun SolicitudScreen(
                     Text("Aceptar")
                 }
             },
+
             dismissButton = {
 
                 TextButton(
@@ -308,6 +323,7 @@ fun SolicitudScreen(
                     Text("Cancelar")
                 }
             }
+
         ) {
 
             DatePicker(

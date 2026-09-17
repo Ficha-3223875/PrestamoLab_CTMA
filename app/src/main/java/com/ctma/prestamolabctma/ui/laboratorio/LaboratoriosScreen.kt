@@ -1,18 +1,33 @@
 package com.ctma.prestamolabctma.ui.laboratorio
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,39 +64,50 @@ fun LaboratoriosScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
     ) {
 
         Text(
             text = "Laboratorios",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "Gestión de laboratorios",
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 16.dp
-            )
+            text = "Administra los espacios de formación",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 18.dp)
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
             Button(
                 onClick = {
                     mostrarAgregar = true
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Agregar")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+
+                Text(
+                    "Agregar",
+                    modifier = Modifier.padding(start = 6.dp)
+                )
             }
 
-            Button(
+            FilledTonalButton(
                 onClick = onVolver,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Text("Volver")
             }
@@ -91,74 +117,126 @@ fun LaboratoriosScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
 
             items(laboratorios) { laboratorio ->
 
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 3.dp
+                    )
                 ) {
 
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement =
-                            Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
 
-                        Text(
-                            text = laboratorio.nombre,
-                            style = MaterialTheme
-                                .typography
-                                .titleMedium
-                        )
-
-                        Text(
-                            text = "Código: ${laboratorio.codigo}"
-                        )
-
-                        Text(
-                            text = "Estado: ${laboratorio.estado}"
-                        )
-
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement =
-                                Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
 
-                            Button(
-                                onClick = {
-                                    laboratorioEditar =
-                                        laboratorio
-                                },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Editar")
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Business,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
 
-                            Button(
-                                onClick = {
-                                    laboratorioEliminar =
-                                        laboratorio
-                                },
-                                modifier = Modifier.weight(1f)
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp)
                             ) {
-                                Text("Eliminar")
+
+                                Text(
+                                    text = laboratorio.nombre,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                Text(
+                                    text = "Código: ${laboratorio.codigo}",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
 
-                        Button(
+                        val disponible =
+                            laboratorio.estado.equals(
+                                "Disponible",
+                                ignoreCase = true
+                            )
+
+                        Surface(
+                            shape = RoundedCornerShape(50.dp),
+                            color = if (disponible) {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.errorContainer
+                            }
+                        ) {
+
+                            Row(
+                                modifier = Modifier.padding(
+                                    horizontal = 12.dp,
+                                    vertical = 7.dp
+                                )
+                            ) {
+
+                                Icon(
+                                    imageVector = if (disponible) {
+                                        Icons.Default.CheckCircle
+                                    } else {
+                                        Icons.Default.Block
+                                    },
+                                    contentDescription = null
+                                )
+
+                                Text(
+                                    text = laboratorio.estado,
+                                    modifier = Modifier.padding(
+                                        start = 6.dp
+                                    )
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            IconButton(
+                                onClick = {
+                                    laboratorioEditar = laboratorio
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Editar"
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    laboratorioEliminar = laboratorio
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Eliminar",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+
+                        FilledTonalButton(
                             onClick = {
 
                                 val nuevoEstado =
-                                    if (
-                                        laboratorio.estado
-                                            .equals(
-                                                "Disponible",
-                                                ignoreCase = true
-                                            )
-                                    ) {
+                                    if (disponible) {
                                         "No disponible"
                                     } else {
                                         "Disponible"
@@ -169,22 +247,15 @@ fun LaboratoriosScreen(
                                     nuevoEstado
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp)
                         ) {
-
                             Text(
-                                text =
-                                    if (
-                                        laboratorio.estado
-                                            .equals(
-                                                "Disponible",
-                                                ignoreCase = true
-                                            )
-                                    ) {
-                                        "Marcar no disponible"
-                                    } else {
-                                        "Marcar disponible"
-                                    }
+                                if (disponible) {
+                                    "Marcar no disponible"
+                                } else {
+                                    "Marcar disponible"
+                                }
                             )
                         }
                     }
@@ -193,40 +264,35 @@ fun LaboratoriosScreen(
         }
     }
 
-    // =========================================================
-    // AGREGAR LABORATORIO
-    // =========================================================
-
     if (mostrarAgregar) {
 
         FormularioLaboratorioDialog(
             titulo = "Agregar laboratorio",
             laboratorio = null,
+            onConfirmar = { nombre, codigo, _ ->
 
-            onConfirmar = { nombre, codigo, estado ->
-
-                onAgregar(
+                val resultado = onAgregar(
                     nombre,
                     codigo
                 )
-            },
 
+                if (resultado) {
+                    mostrarAgregar = false
+                }
+
+                resultado
+            },
             onCancelar = {
                 mostrarAgregar = false
             }
         )
     }
 
-// =========================================================
-// EDITAR LABORATORIO
-// =========================================================
-
     laboratorioEditar?.let { laboratorio ->
 
         FormularioLaboratorioDialog(
             titulo = "Editar laboratorio",
             laboratorio = laboratorio,
-
             onConfirmar = { nombre, codigo, estado ->
 
                 val resultado = onEditar(
@@ -242,16 +308,11 @@ fun LaboratoriosScreen(
 
                 resultado
             },
-
             onCancelar = {
                 laboratorioEditar = null
             }
         )
     }
-
-    // =========================================================
-    // ELIMINAR LABORATORIO
-    // =========================================================
 
     laboratorioEliminar?.let { laboratorio ->
 
@@ -259,36 +320,25 @@ fun LaboratoriosScreen(
             onDismissRequest = {
                 laboratorioEliminar = null
             },
-
             title = {
                 Text("Eliminar laboratorio")
             },
-
             text = {
                 Text(
-                    "¿Deseas eliminar el laboratorio " +
-                            "\"${laboratorio.nombre}\"?"
+                    "¿Deseas eliminar el laboratorio \"${laboratorio.nombre}\"?"
                 )
             },
-
             confirmButton = {
-
                 TextButton(
                     onClick = {
-
-                        onEliminar(
-                            laboratorio.id
-                        )
-
+                        onEliminar(laboratorio.id)
                         laboratorioEliminar = null
                     }
                 ) {
                     Text("Eliminar")
                 }
             },
-
             dismissButton = {
-
                 TextButton(
                     onClick = {
                         laboratorioEliminar = null
@@ -314,21 +364,15 @@ private fun FormularioLaboratorioDialog(
 ) {
 
     var nombre by remember {
-        mutableStateOf(
-            laboratorio?.nombre ?: ""
-        )
+        mutableStateOf(laboratorio?.nombre ?: "")
     }
 
     var codigo by remember {
-        mutableStateOf(
-            laboratorio?.codigo ?: ""
-        )
+        mutableStateOf(laboratorio?.codigo ?: "")
     }
 
     var estado by remember {
-        mutableStateOf(
-            laboratorio?.estado ?: "Disponible"
-        )
+        mutableStateOf(laboratorio?.estado ?: "Disponible")
     }
 
     var error by remember {
@@ -336,18 +380,14 @@ private fun FormularioLaboratorioDialog(
     }
 
     AlertDialog(
-
         onDismissRequest = onCancelar,
-
         title = {
             Text(titulo)
         },
-
         text = {
 
             Column(
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 OutlinedTextField(
@@ -396,14 +436,11 @@ private fun FormularioLaboratorioDialog(
 
                     Text(
                         text = error,
-                        color = MaterialTheme
-                            .colorScheme
-                            .error
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         },
-
         confirmButton = {
 
             TextButton(
@@ -426,29 +463,16 @@ private fun FormularioLaboratorioDialog(
                         estado.trim()
                     )
 
-                    if (laboratorio == null) {
-
-                        if (resultado) {
-                            onCancelar()
-                        } else {
-                            error =
-                                "El código ya existe"
-                        }
-                    } else {
-
-                        if (!resultado) {
-                            error =
-                                "El código ya existe o los datos no son válidos"
-                        }
+                    if (!resultado) {
+                        error =
+                            "El código ya existe o los datos no son válidos"
                     }
                 }
             ) {
                 Text("Guardar")
             }
         },
-
         dismissButton = {
-
             TextButton(
                 onClick = onCancelar
             ) {

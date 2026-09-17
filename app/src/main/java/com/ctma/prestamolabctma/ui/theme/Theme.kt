@@ -1,54 +1,103 @@
 package com.ctma.prestamolabctma.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// =========================================================
+// COLORES ADICIONALES
+// =========================================================
+
+private val ColorSuperficieVariant = Color(
+    0xFFE8EEF5
 )
+
+private val ColorSuperficieOscuraVariant = Color(
+    0xFF3E4A56
+)
+
+private val ColorFondoDark = Color(
+    0xFF00315C
+)
+
+// =========================================================
+// TEMA CLARO
+// =========================================================
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = AzulPrincipal,
+    onPrimary = SuperficieClaro,
+
+    primaryContainer = AzulClaro,
+    onPrimaryContainer = AzulOscuro,
+
+    secondary = VerdePrincipal,
+    onSecondary = SuperficieClaro,
+
+    secondaryContainer = VerdeClaro,
+    onSecondaryContainer = TextoPrincipal,
+
+    background = FondoClaro,
+    onBackground = TextoPrincipal,
+
+    surface = SuperficieClaro,
+    onSurface = TextoPrincipal,
+
+    surfaceVariant = ColorSuperficieVariant,
+    onSurfaceVariant = TextoSecundario,
+
+    error = RojoError,
+    onError = SuperficieClaro
 )
+
+// =========================================================
+// TEMA OSCURO
+// =========================================================
+
+private val DarkColorScheme = darkColorScheme(
+
+    primary = AzulOscuroDark,
+    onPrimary = ColorFondoDark,
+
+    primaryContainer = AzulOscuro,
+    onPrimaryContainer = TextoPrincipalDark,
+
+    secondary = AzulSecundarioDark,
+    onSecondary = ColorFondoDark,
+
+    background = FondoOscuro,
+    onBackground = TextoPrincipalDark,
+
+    surface = SuperficieOscura,
+    onSurface = TextoPrincipalDark,
+
+    surfaceVariant = ColorSuperficieOscuraVariant,
+    onSurfaceVariant = TextoSecundarioDark,
+
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005)
+)
+
+// =========================================================
+// TEMA PRINCIPAL
+// =========================================================
 
 @Composable
 fun PrestamoLabCTMATheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme =
+        if (darkTheme) {
+            DarkColorScheme
+        } else {
+            LightColorScheme
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,

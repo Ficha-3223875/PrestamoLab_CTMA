@@ -1,5 +1,6 @@
 package com.ctma.prestamolabctma.ui.solicitud
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,10 +9,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ctma.prestamolabctma.model.Solicitud
-import androidx.compose.material3.OutlinedTextField
 
 @Composable
 fun SolicitudesScreen(
@@ -36,36 +46,54 @@ fun SolicitudesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
     ) {
 
         Text(
             text = "Solicitudes",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "Gestión de solicitudes de préstamo",
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 16.dp
-            )
+            text = "Gestiona las solicitudes de préstamo.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 18.dp)
         )
 
         if (solicitudes.isEmpty()) {
 
-            Text(
-                text = "No hay solicitudes registradas."
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Assignment,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "No hay solicitudes",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                }
+            }
 
         } else {
 
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(
-                    bottom = 16.dp
-                )
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
 
                 items(
@@ -83,13 +111,12 @@ fun SolicitudesScreen(
             }
         }
 
-        Button(
+        FilledTonalButton(
             onClick = onVolverClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
         ) {
-            Text(
-                text = "Volver"
-            )
+            Text("Volver")
         }
     }
 }
@@ -105,13 +132,25 @@ fun SolicitudCard(
         mutableStateOf(false)
     }
 
+    var mostrarDialogoRechazo by remember {
+        mutableStateOf(false)
+    }
+
+    var motivoRechazo by remember {
+        mutableStateOf("")
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp)
         ) {
 
             Text(
@@ -120,15 +159,16 @@ fun SolicitudCard(
             )
 
             Text(
-                text = "Tipo: ${solicitud.equipo.tipo}"
+                text = solicitud.equipo.tipo,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Text(
-                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}"
+                text = "Préstamo: ${solicitud.fechaPrestamo}"
             )
 
             Text(
-                text = "Fecha de devolución: ${solicitud.fechaDevolucion}"
+                text = "Devolución: ${solicitud.fechaDevolucion}"
             )
 
             Text(
@@ -136,10 +176,10 @@ fun SolicitudCard(
             )
 
             Text(
-                text = "Estado: ${solicitud.estado}"
+                text = "Estado: ${solicitud.estado}",
+                style = MaterialTheme.typography.titleSmall
             )
 
-            // Acciones para solicitudes pendientes
             if (
                 solicitud.estado.equals(
                     "Pendiente",
@@ -154,53 +194,49 @@ fun SolicitudCard(
                             "Aprobada"
                         )
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
+
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null
+                    )
+
                     Text(
-                        text = "Aprobar"
+                        "Aprobar",
+                        modifier = Modifier.padding(start = 6.dp)
                     )
                 }
 
-                Button(
+                FilledTonalButton(
                     onClick = {
-                        onCambiarEstado(
-                            solicitud.id,
-                            "Rechazada"
-                        )
+                        mostrarDialogoRechazo = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null
+                    )
+
                     Text(
-                        text = "Rechazar"
+                        "Rechazar",
+                        modifier = Modifier.padding(start = 6.dp)
                     )
                 }
-                if (solicitud.estado.equals("Aprobada", ignoreCase = true)) {
 
-                    Button(
-                        onClick = {
-                            onCambiarEstado(
-                                solicitud.id,
-                                "En Préstamo"
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Entregar equipo")
-                    }
-                }
-                Button(
+                TextButton(
                     onClick = {
                         mostrarDialogoCancelar = true
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Cancelar solicitud"
-                    )
+                    Text("Cancelar solicitud")
                 }
             }
 
-            // Mensaje para solicitudes aprobadas
             if (
                 solicitud.estado.equals(
                     "Aprobada",
@@ -208,15 +244,37 @@ fun SolicitudCard(
                 )
             ) {
 
+                Button(
+                    onClick = {
+                        onCambiarEstado(
+                            solicitud.id,
+                            "En Préstamo"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.Schedule,
+                        contentDescription = null
+                    )
+
+                    Text(
+                        "Entregar equipo",
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
+
                 Text(
-                    text = "No puedes cancelar una solicitud que ya fue aprobada.",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "La solicitud fue aprobada y está lista para entrega.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 
-    // Diálogo de confirmación
     if (mostrarDialogoCancelar) {
 
         AlertDialog(
@@ -224,13 +282,11 @@ fun SolicitudCard(
                 mostrarDialogoCancelar = false
             },
             title = {
-                Text(
-                    text = "Cancelar solicitud"
-                )
+                Text("Cancelar solicitud")
             },
             text = {
                 Text(
-                    text = "¿Estás seguro de que deseas cancelar esta solicitud?"
+                    "¿Estás seguro de que deseas cancelar esta solicitud?"
                 )
             },
             confirmButton = {
@@ -241,9 +297,7 @@ fun SolicitudCard(
                         mostrarDialogoCancelar = false
                     }
                 ) {
-                    Text(
-                        text = "Confirmar"
-                    )
+                    Text("Confirmar")
                 }
             },
             dismissButton = {
@@ -253,9 +307,63 @@ fun SolicitudCard(
                         mostrarDialogoCancelar = false
                     }
                 ) {
-                    Text(
-                        text = "Cancelar"
-                    )
+                    Text("Volver")
+                }
+            }
+        )
+    }
+
+    if (mostrarDialogoRechazo) {
+
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoRechazo = false
+            },
+            title = {
+                Text("Rechazar solicitud")
+            },
+            text = {
+
+                OutlinedTextField(
+                    value = motivoRechazo,
+                    onValueChange = {
+                        motivoRechazo = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text("Motivo del rechazo")
+                    },
+                    minLines = 3
+                )
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        if (motivoRechazo.isNotBlank()) {
+
+                            onCambiarEstado(
+                                solicitud.id,
+                                "Rechazada"
+                            )
+
+                            mostrarDialogoRechazo = false
+                            motivoRechazo = ""
+                        }
+                    }
+                ) {
+                    Text("Rechazar")
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        mostrarDialogoRechazo = false
+                    }
+                ) {
+                    Text("Cancelar")
                 }
             }
         )

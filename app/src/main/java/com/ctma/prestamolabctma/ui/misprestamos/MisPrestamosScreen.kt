@@ -1,5 +1,6 @@
 package com.ctma.prestamolabctma.ui.misprestamos
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,10 +10,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,37 +49,62 @@ fun MisPrestamosScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
     ) {
 
         Text(
-            text = "Historial de préstamos",
-            style = MaterialTheme.typography.headlineMedium
+            text = "Mis préstamos",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "Consulta tus préstamos activos y pasados.",
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 16.dp
-            )
+            text = "Consulta tus préstamos activos y anteriores.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 18.dp)
         )
 
-        Button(
+        FilledTonalButton(
             onClick = onVolverClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
         ) {
-            Text(
-                text = "Volver al inicio"
-            )
+            Text("Volver al inicio")
         }
 
         if (solicitudes.isEmpty()) {
 
-            Text(
-                text = "No tienes préstamos registrados.",
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 18.dp),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.Assignment,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "Sin préstamos",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+
+                    Text(
+                        text = "No tienes préstamos registrados actualmente.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
 
         } else {
 
@@ -78,9 +113,7 @@ fun MisPrestamosScreen(
                     .fillMaxSize()
                     .padding(top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(
-                    bottom = 16.dp
-                )
+                contentPadding = PaddingValues(bottom = 20.dp)
             ) {
 
                 items(solicitudes) { solicitud ->
@@ -106,29 +139,52 @@ fun PrestamoCard(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp)
         ) {
 
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Icon(
+                    imageVector = Icons.Default.Assignment,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                ) {
+
+                    Text(
+                        text = solicitud.equipo.nombre,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = solicitud.equipo.tipo,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Text(
-                text = solicitud.equipo.nombre,
-                style = MaterialTheme.typography.titleMedium
+                text = "Préstamo: ${solicitud.fechaPrestamo}"
             )
 
             Text(
-                text = "Tipo: ${solicitud.equipo.tipo}"
-            )
-
-            Text(
-                text = "Fecha de préstamo: ${solicitud.fechaPrestamo}"
-            )
-
-            Text(
-                text = "Fecha de devolución: ${solicitud.fechaDevolucion}"
+                text = "Devolución: ${solicitud.fechaDevolucion}"
             )
 
             Text(
@@ -139,7 +195,12 @@ fun PrestamoCard(
                 estado = solicitud.estado
             )
 
-            if (solicitud.estado.equals("En Préstamo", ignoreCase = true)) {
+            if (
+                solicitud.estado.equals(
+                    "En Préstamo",
+                    ignoreCase = true
+                )
+            ) {
 
                 ContadorDevolucion(
                     fechaDevolucion = solicitud.fechaDevolucion
@@ -149,11 +210,10 @@ fun PrestamoCard(
                     onClick = {
                         mostrarDialogoDevolucion = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text(
-                        text = "Devolver préstamo"
-                    )
+                    Text("Devolver préstamo")
                 }
             }
         }
@@ -165,21 +225,14 @@ fun PrestamoCard(
             onDismissRequest = {
                 mostrarDialogoDevolucion = false
             },
-
             title = {
-                Text(
-                    text = "Confirmar devolución"
-                )
+                Text("Confirmar devolución")
             },
-
             text = {
                 Text(
-                    text = "¿Confirmas que el equipo " +
-                            "${solicitud.equipo.nombre} " +
-                            "fue recibido y será marcado como devuelto?"
+                    "¿Confirmas que el equipo ${solicitud.equipo.nombre} será marcado como devuelto?"
                 )
             },
-
             confirmButton = {
 
                 TextButton(
@@ -190,22 +243,16 @@ fun PrestamoCard(
                         mostrarDialogoDevolucion = false
                     }
                 ) {
-                    Text(
-                        text = "Confirmar"
-                    )
+                    Text("Confirmar")
                 }
             },
-
             dismissButton = {
-
                 TextButton(
                     onClick = {
                         mostrarDialogoDevolucion = false
                     }
                 ) {
-                    Text(
-                        text = "Cancelar"
-                    )
+                    Text("Cancelar")
                 }
             }
         )
@@ -217,38 +264,56 @@ fun EstadoPrestamo(
     estado: String
 ) {
 
-    val indicador = when {
+    val color =
+        when {
+            estado.equals("Aprobada", true) ||
+                    estado.equals("Devuelto", true) ->
+                MaterialTheme.colorScheme.secondaryContainer
 
-        estado.equals("Aprobada", ignoreCase = true) ->
-            "🟢 Aprobado"
+            estado.equals("En Préstamo", true) ||
+                    estado.equals("Pendiente", true) ->
+                MaterialTheme.colorScheme.tertiaryContainer
 
-        estado.equals("Pendiente", ignoreCase = true) ->
-            "🟡 Pendiente"
+            estado.equals("Rechazada", true) ||
+                    estado.equals("Cancelada", true) ->
+                MaterialTheme.colorScheme.errorContainer
 
-        estado.equals("En Préstamo", ignoreCase = true) ->
-            "🟠 En Préstamo"
+            else ->
+                MaterialTheme.colorScheme.surfaceVariant
+        }
 
-        estado.equals("Devuelto", ignoreCase = true) ->
-            "🔵 Devuelto"
+    val icon =
+        if (
+            estado.equals("Aprobada", true) ||
+            estado.equals("Devuelto", true)
+        ) {
+            Icons.Default.CheckCircle
+        } else {
+            Icons.Default.Timer
+        }
 
-        estado.equals("Cancelada", ignoreCase = true) ->
-            "⚪ Cancelada"
-
-        estado.equals("Rechazada", ignoreCase = true) ->
-            "🔴 Rechazada"
-
-        else ->
-            "⚪ $estado"
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth()
+    Surface(
+        shape = RoundedCornerShape(50.dp),
+        color = color
     ) {
 
-        Text(
-            text = "Estado: $indicador",
-            style = MaterialTheme.typography.titleSmall
-        )
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 12.dp,
+                vertical = 7.dp
+            )
+        ) {
+
+            Icon(
+                imageVector = icon,
+                contentDescription = null
+            )
+
+            Text(
+                text = estado,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
     }
 }
 
@@ -287,7 +352,7 @@ fun ContadorDevolucion(
                     if (diferencia <= 0) {
 
                         tiempoRestante =
-                            "⚠️ Fecha de devolución cumplida"
+                            "Fecha de devolución cumplida"
 
                     } else {
 
@@ -298,11 +363,11 @@ fun ContadorDevolucion(
                             (diferencia / (1000 * 60)) % 60
 
                         tiempoRestante =
-                            "⏱️ Tiempo restante: ${horas}h ${minutos}min"
+                            "Tiempo restante: ${horas}h ${minutos}min"
                     }
                 }
 
-            } catch (e: Exception) {
+            } catch (_: Exception) {
 
                 tiempoRestante =
                     "No se pudo calcular el tiempo restante"
@@ -314,6 +379,7 @@ fun ContadorDevolucion(
 
     Text(
         text = tiempoRestante,
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.primary
     )
 }
