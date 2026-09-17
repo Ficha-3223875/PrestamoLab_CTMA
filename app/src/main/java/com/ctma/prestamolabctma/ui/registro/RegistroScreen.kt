@@ -176,8 +176,12 @@ fun RegistroScreen(
                         error = "Ingresa el correo institucional."
                     }
 
-                    !correo.endsWith("@sena.edu.co", ignoreCase = true) -> {
-                        error = "Debes utilizar un correo institucional del SENA."
+                    !correo.endsWith(
+                        "@sena.edu.co",
+                        ignoreCase = true
+                    ) -> {
+                        error =
+                            "Debes utilizar un correo institucional del SENA."
                     }
 
                     password.isBlank() -> {
@@ -185,7 +189,8 @@ fun RegistroScreen(
                     }
 
                     programa.isBlank() -> {
-                        error = "Ingresa el programa de formación."
+                        error =
+                            "Ingresa el programa de formación."
                     }
 
                     ficha.isBlank() -> {
@@ -195,16 +200,14 @@ fun RegistroScreen(
                     else -> {
 
                         val usuario = Usuario(
-                            documento = documento,
-                            nombre = nombre,
-                            correo = correo,
+                            documento = documento.trim(),
+                            nombre = nombre.trim(),
+                            correo = correo.trim(),
                             password = password,
-                            programa = programa,
-                            ficha = ficha,
+                            programa = programa.trim(),
+                            ficha = ficha.trim(),
                             rol = "Aprendiz"
                         )
-
-                        onRegistroExitoso(usuario)
 
                         onRegistroExitoso(usuario)
                     }

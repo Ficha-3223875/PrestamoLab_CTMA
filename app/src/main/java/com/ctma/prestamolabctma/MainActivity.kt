@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ctma.prestamolabctma.data.api.RetrofitInstance
+import com.ctma.prestamolabctma.data.local.AppDatabase
 import com.ctma.prestamolabctma.data.repository.LoginRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
 import com.ctma.prestamolabctma.navigation.AppNavigation
@@ -21,7 +21,8 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        val sessionManager = SessionManager(applicationContext)
+        val sessionManager =
+            SessionManager(applicationContext)
 
         NotificationHelper.crearCanal(this)
 
@@ -29,18 +30,25 @@ class MainActivity : ComponentActivity() {
 
             PrestamoLabCTMATheme {
 
-                val loginViewModel: LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(
-                        LoginRepository(
-                            RetrofitInstance.api
-                        ),
-                        sessionManager
+                val database =
+                    AppDatabase.getDatabase(
+                        applicationContext
                     )
-                )
+
+                val loginViewModel: LoginViewModel =
+                    viewModel(
+                        factory = LoginViewModelFactory(
+                            LoginRepository(
+                                database.usuarioDao()
+                            ),
+                            sessionManager
+                        )
+                    )
 
                 AppNavigation(
                     loginViewModel = loginViewModel,
-                    sesionActiva = sessionManager.haySesionActiva()
+                    sesionActiva =
+                        sessionManager.haySesionActiva()
                 )
             }
         }

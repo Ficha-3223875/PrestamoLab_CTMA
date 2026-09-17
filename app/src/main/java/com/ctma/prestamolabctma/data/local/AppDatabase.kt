@@ -7,17 +7,20 @@ import androidx.room.RoomDatabase
 import com.ctma.prestamolabctma.data.local.entity.EquipoEntity
 import com.ctma.prestamolabctma.data.local.entity.PendingActionEntity
 import com.ctma.prestamolabctma.data.local.entity.SolicitudEntity
+import com.ctma.prestamolabctma.data.local.entity.UsuarioEntity
 import com.ctma.prestamolabctma.data.local.entity.dao.EquipoDao
 import com.ctma.prestamolabctma.data.local.entity.dao.PendingActionDao
 import com.ctma.prestamolabctma.data.local.entity.dao.SolicitudDao
+import com.ctma.prestamolabctma.data.local.entity.dao.UsuarioDao
 
 @Database(
     entities = [
         EquipoEntity::class,
         SolicitudEntity::class,
-        PendingActionEntity::class
+        PendingActionEntity::class,
+        UsuarioEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,6 +30,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun solicitudDao(): SolicitudDao
 
     abstract fun pendingActionDao(): PendingActionDao
+
+    abstract fun usuarioDao(): UsuarioDao
 
     companion object {
 

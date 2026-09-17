@@ -1,10 +1,11 @@
 package com.ctma.prestamolabctma.data.repository
 
-import com.ctma.prestamolabctma.data.api.ApiService
+import com.ctma.prestamolabctma.data.local.entity.UsuarioEntity
+import com.ctma.prestamolabctma.data.local.entity.dao.UsuarioDao
 import com.ctma.prestamolabctma.model.Usuario
 
 class UsuarioRepository(
-    private val apiService: ApiService
+    private val usuarioDao: UsuarioDao
 ) {
 
     suspend fun registrarUsuario(
@@ -13,52 +14,54 @@ class UsuarioRepository(
 
         return try {
 
-            val response = apiService.registrarUsuario(usuario)
+            val usuarioExistente =
+                usuarioDao.obtenerPorCorreo(
+                    usuario.correo
+                )
 
-            when {
-                response.isSuccessful -> {
-
-                    val usuarioRegistrado = response.body()
-
-                    if (usuarioRegistrado != null) {
-                        Result.success(usuarioRegistrado)
-                    } else {
-                        Result.failure(
-                            Exception("La respuesta del servidor está vacía")
-                        )
-                    }
-                }
-
-                response.code() == 400 -> {
-                    Result.failure(
-                        Exception(
-                            "Datos inválidos. Verifica la información ingresada"
-                        )
+            if (usuarioExistente != null) {
+                return Result.failure(
+                    Exception(
+                        "Ya existe un usuario registrado con ese correo"
                     )
-                }
-
-                response.code() == 500 -> {
-                    Result.failure(
-                        Exception(
-                            "Error interno del servidor. Intenta nuevamente"
-                        )
-                    )
-                }
-
-                else -> {
-                    Result.failure(
-                        Exception(
-                            "Error del servidor: ${response.code()}"
-                        )
-                    )
-                }
+                )
             }
+
+            val documentoExistente =
+                usuarioDao.obtenerPorDocumento(
+                    usuario.documento
+                )
+
+            if (documentoExistente != null) {
+                return Result.failure(
+                    Exception(
+                        "Ya existe un usuario registrado con ese documento"
+                    )
+                )
+            }
+
+            val usuarioEntity = UsuarioEntity(
+                documento = usuario.documento,
+                nombre = usuario.nombre,
+                correo = usuario.correo,
+                password = usuario.password,
+                programa = usuario.programa,
+                ficha = usuario.ficha,
+                rol = usuario.rol
+            )
+
+            usuarioDao.insertarUsuario(
+                usuarioEntity
+            )
+
+            Result.success(usuario)
 
         } catch (e: Exception) {
 
             Result.failure(
                 Exception(
-                    "No se pudo conectar con el servidor"
+                    e.message
+                        ?: "No se pudo registrar el usuario"
                 )
             )
         }

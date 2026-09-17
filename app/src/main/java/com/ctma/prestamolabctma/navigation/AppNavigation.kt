@@ -26,9 +26,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-import com.ctma.prestamolabctma.data.api.RetrofitInstance
 import com.ctma.prestamolabctma.data.repository.UsuarioRepository
 import com.ctma.prestamolabctma.data.session.SessionManager
+import com.ctma.prestamolabctma.data.local.AppDatabase
 
 import com.ctma.prestamolabctma.model.Equipo
 
@@ -148,7 +148,9 @@ fun AppNavigation(
         viewModel(
             factory = RegistroViewModelFactory(
                 UsuarioRepository(
-                    RetrofitInstance.api
+                    AppDatabase
+                        .getDatabase(application)
+                        .usuarioDao()
                 )
             )
         )
@@ -239,6 +241,31 @@ fun AppNavigation(
 
         composable("registro") {
 
+            val mensajeRegistro by registroViewModel
+                .mensaje
+                .collectAsStateWithLifecycle()
+
+            val cargandoRegistro by registroViewModel
+                .cargando
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(mensajeRegistro) {
+
+                if (mensajeRegistro ==
+                    "Usuario registrado correctamente"
+                ) {
+
+                    registroViewModel.limpiarMensaje()
+
+                    navController.navigate("login") {
+
+                        popUpTo("registro") {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+
             RegistroScreen(
 
                 onRegistroExitoso = { usuario ->
@@ -254,7 +281,6 @@ fun AppNavigation(
                 }
             )
         }
-
 
         // =====================================================
         // HOME
