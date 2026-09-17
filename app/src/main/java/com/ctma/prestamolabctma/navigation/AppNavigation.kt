@@ -282,58 +282,53 @@ fun AppNavigation(
             )
         }
 
-        // =====================================================
-        // HOME
-        // =====================================================
+// =====================================================
+// HOME
+// =====================================================
 
         composable("home") {
 
             HomeScreen(
 
                 onCatalogoClick = {
-
-                    navController.navigate(
-                        "catalogo"
-                    )
+                    navController.navigate("catalogo")
                 },
 
                 onEquiposClick = {
-
-                    navController.navigate(
-                        "equipos"
-                    )
+                    navController.navigate("equipos")
                 },
 
                 onPrestamosClick = {
-
-                    navController.navigate(
-                        "prestamos"
-                    )
+                    navController.navigate("prestamos")
                 },
 
                 onSolicitudesClick = {
-
-                    navController.navigate(
-                        "solicitudes"
-                    )
+                    navController.navigate("solicitudes")
                 },
 
                 onLaboratoriosClick = {
-
-                    navController.navigate(
-                        "laboratorios"
-                    )
+                    navController.navigate("laboratorios")
                 },
 
                 onMetricasClick = {
+                    navController.navigate("metricas")
+                },
 
-                    navController.navigate(
-                        "metricas"
-                    )
+                onCerrarSesion = {
+
+                    sessionManager.cerrarSesion()
+
+                    navController.navigate("login") {
+
+                        popUpTo("home") {
+                            inclusive = true
+                        }
+
+                        launchSingleTop = true
+                    }
                 }
             )
         }
-
 
         // =====================================================
         // CATÁLOGO

@@ -17,11 +17,13 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,7 +36,8 @@ fun HomeScreen(
     onPrestamosClick: () -> Unit,
     onSolicitudesClick: () -> Unit,
     onLaboratoriosClick: () -> Unit,
-    onMetricasClick: () -> Unit
+    onMetricasClick: () -> Unit,
+    onCerrarSesion: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -157,6 +160,29 @@ fun HomeScreen(
                 icon = Icons.Default.BarChart,
                 title = "Métricas",
                 onClick = onMetricasClick
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+
+        TextButton(
+            onClick = onCerrarSesion,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Logout,
+                contentDescription = "Cerrar sesión"
+            )
+
+            Spacer(
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+
+            Text(
+                text = "Cerrar sesión",
+                color = MaterialTheme.colorScheme.error
             )
         }
     }
