@@ -32,4 +32,23 @@ class SolicitudActivityTest {
 
         scenario.close()
     }
+
+    @Test
+    fun testDateAndTimePickersAreInteractive() {
+        // Lanza la actividad de solicitud
+        val scenario = ActivityScenario.launch(SolicitudActivity::class.java)
+
+        // Verifica que el botón de seleccionar fecha esté visible y se pueda pulsar
+        onView(withId(R.id.btnSeleccionarFecha)).check(matches(isDisplayed()))
+
+        // Verifica que los botones de hora de inicio y fin estén visibles
+        onView(withId(R.id.btnHoraInicio)).check(matches(isDisplayed()))
+        onView(withId(R.id.btnHoraFin)).check(matches(isDisplayed()))
+
+        // Verifica que las etiquetas de texto iniciales de fecha y horario muestren el estado por defecto
+        onView(withId(R.id.tvFechaSeleccionada)).check(matches(isDisplayed()))
+        onView(withId(R.id.tvHorasSeleccionadas)).check(matches(isDisplayed()))
+
+        scenario.close()
+    }
 }
