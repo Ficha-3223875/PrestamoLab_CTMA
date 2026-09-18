@@ -1,32 +1,29 @@
-package com.example.prestamolab.worker
+package com.example.prestamolab.data.local
 
 import android.content.Context
-import android.util.Log
-import androidx.work.CoroutineWorker
-import androidx.work.WorkerParameters
-import com.example.prestamolab.data.local.AppDatabase
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 
-class SyncWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : CoroutineWorker(appContext, workerParams) {
+@Database(entities = [PrestamoEntity::class], version = 1, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
 
-    override suspend fun doWork(): Result {
-        val db = AppDatabase.getDatabase(applicationContext)
-        val pendientes = db.peticionPendienteDao().obtenerPendientes()
+    abstract fun prestamoDao(): PrestamoDao
 
-        Log.d("SyncWorker", "Sincronizando ${pendientes.size} peticiones pendientes con el servidor...")
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
 
-        for (peticion in pendientes) {
-            try {
-                // Aquí se reintentan las llamadas pendientes con Retrofit según tipoAccion
-                db.peticionPendienteDao().eliminarPorId(peticion.id)
-            } catch (e: Exception) {
-                Log.e("SyncWorker", "Error al procesar la transacción id: ${peticion.id}")
-                return Result.retry()
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "prestamo_database"
+                ).build()
+                INSTANCE = instance
+                instance
             }
         }
-
-        return Result.success()
     }
 }

@@ -159,7 +159,7 @@ class AdminPendientesActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.instance.registrarIncidencia(request)
-                if (response.isSuccessful && response.body()?.exito == true) {
+                if (response.isSuccessful) {
                     confirmarIncidencia(position)
                 } else {
                     confirmarIncidencia(position)
